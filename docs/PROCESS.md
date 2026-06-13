@@ -48,6 +48,12 @@
 - [x] **11. 온사이트 docs(추가)** — USAGE.md/ARCHITECTURE.md 워크플로 분석 → 10개 `/docs/<slug>` 정적 페이지(사이드바·Shiki vitesse 하이라이팅·복사)
 - [x] **12. 브랜드(추가)** — BrandMark 테마 적응형(border·round 제거), 헤더 GitHub 아이콘 ghost(무border)
 
+## 라운드 2 (스텝별 commit+push dev, 3단계 후 prod)
+
+- [ ] **R2-1. 헤더 Docs 링크** — `#docs` 섹션 스크롤 → `/[lang]/docs` 최상위 페이지로 (footer도 일관)
+- [ ] **R2-2. 업데이트 로그** — `scripts/gen-update-log.ts`(stepper 로컬 폴더의 git tag/commit·Cargo.toml 읽어 버전별 로그 생성) → `entities/update-log/*` → `/[lang]/docs/update-log` 페이지(사이드바 포함). 수동 실행 커맨드.
+- [ ] **R2-3. 그리드 글로우** — 커서 추적 원형 글로우 → 그리드 배경 + 커서 주변 발광(마스크) 효과. 라이트 모드 글로우 살짝 진하게.
+
 ## 상세
 
 ### 1. 스캐폴드

@@ -30,7 +30,7 @@ export const SiteHeader: FC<SiteHeaderProps> = ({ lang, dict }) => (
                     <Link href='#quickstart'>{dict.nav.quickstart}</Link>
                 </Button>
                 <Button asChild variant='ghost' size='sm'>
-                    <Link href='#docs'>{dict.nav.docs}</Link>
+                    <Link href={`/${lang}/docs`}>{dict.nav.docs}</Link>
                 </Button>
             </nav>
 

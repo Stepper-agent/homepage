@@ -43,7 +43,7 @@ export const SiteFooter: FC<SiteFooterProps> = ({ lang, dict, release }) => (
                     className='flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground'>
                     <GithubIcon className='size-3.5' /> {dict.nav.github}
                 </Link>
-                <Link href={`/${lang}#docs`} className='text-muted-foreground transition-colors hover:text-foreground'>
+                <Link href={`/${lang}/docs`} className='text-muted-foreground transition-colors hover:text-foreground'>
                     {dict.nav.docs}
                 </Link>
             </div>
