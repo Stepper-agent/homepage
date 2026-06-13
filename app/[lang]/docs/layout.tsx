@@ -16,7 +16,7 @@ const DocsLayout = async ({ children, params }: DocsLayoutProps) => {
     return (
         <div className='mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-[200px_minmax(0,1fr)] md:py-14 lg:grid-cols-[220px_minmax(0,1fr)]'>
             <aside className='md:sticky md:top-20 md:h-fit'>
-                <DocsSidebar lang={lang} nav={nav} label={dict.docs.heading} overviewLabel='Overview' />
+                <DocsSidebar lang={lang} nav={nav} label={dict.docs.heading} overviewLabel='Overview' updateLogLabel='Update log' />
             </aside>
             <div className='min-w-0'>{children}</div>
         </div>

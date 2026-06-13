@@ -7,9 +7,9 @@ import { cn } from '@shared/lib/utils'
 import type { Locale } from '@shared/i18n/config'
 import type { DocNavItem } from '@entities/docs/docs.type'
 
-type DocsSidebarProps = { lang: Locale; nav: DocNavItem[]; label: string; overviewLabel: string }
+type DocsSidebarProps = { lang: Locale; nav: DocNavItem[]; label: string; overviewLabel: string; updateLogLabel: string }
 
-export const DocsSidebar: FC<DocsSidebarProps> = ({ lang, nav, label, overviewLabel }) => {
+export const DocsSidebar: FC<DocsSidebarProps> = ({ lang, nav, label, overviewLabel, updateLogLabel }) => {
     const pathname = usePathname()
 
     const linkClass = (href: string) =>
@@ -31,6 +31,11 @@ export const DocsSidebar: FC<DocsSidebarProps> = ({ lang, nav, label, overviewLa
                     {item.title}
                 </Link>
             ))}
+            <Link
+                href={`/${lang}/docs/update-log`}
+                className={cn(linkClass(`/${lang}/docs/update-log`), 'shrink-0 whitespace-nowrap md:mt-2 md:border-t md:pt-3')}>
+                {updateLogLabel}
+            </Link>
         </nav>
     )
 }
