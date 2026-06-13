@@ -39,12 +39,14 @@
 - [x] **2. 레이아웃 / 디자인** — 헤더·푸터·Hero·What(파이프라인 다이어그램)·Features·Install·Quickstart·Docs, 브랜드 마크, 모노크롬
 - [x] **3. 설치 섹션 + 스크립트 서빙** — install.sh/ps1 verbatim, OS 탭 원라이너 + 복사, OS별 다운로드 + env
 - [x] **4. 릴리스 버전 fetch** — GitHub releases/latest + 폴백(미표시). (export에선 빌드타임 fetch)
-- [ ] **5. i18n 실번역** — ko/ja 실제 번역(현재 플레이스홀더=en이라 언어 전환이 안 보임)
-- [ ] **6. Next 컴포넌트 전수조사** — `<a>`→`<Link>`(완료), `<img>`(없음), viewport export, robots.ts, sitemap.ts, not-found, /docs 스텁
-- [ ] **7. 스크롤 UX** — 네이티브 스크롤바 숨김(스크롤 유지), install 원라이너 flex-col, BBlog VirtualScroll 커스텀 스크롤
-- [ ] **8. 모션 / 글로우** — motion(framer-motion) 애니메이션, tiny-razer식 커서 추적 글로우 배경(모노크롬)
-- [ ] **9. 반응형 / a11y** — 모바일 반응형, 키보드·대비·alt·focus-ring, 다크모드
-- [ ] **10. GitHub Pages 배포** — `output: export`, public/index.html 로케일 리다이렉트, .nojekyll, CNAME(stepper.gumyo.net), deploy.yml(prod→Pages)·ci.yml(dev), git dev/prod 브랜치
+- [x] **5. i18n 실번역** — ko/ja 실제 번역 완료(영어 base의 `as const` 제거 → 구조적 타입). 언어 전환 라이브 확인.
+- [x] **6. Next 컴포넌트 전수조사** — `<a>`→`<Link>`(전수), `<img>` 없음(아이콘 inline SVG), viewport export, robots.ts, sitemap.ts, not-found, /docs
+- [x] **7. 스크롤 UX** — 네이티브 스크롤바 숨김(스크롤 유지), install 원라이너 flex-col, BBlog VirtualScroll 커스텀 스크롤 이식
+- [x] **8. 모션 / 글로우** — motion@12 + Reveal(스크롤 페이드업)·MotionConfig(reduced-motion), tiny-razer식 커서 추적 글로우(모노크롬, spring)
+- [x] **9. 반응형 / a11y** — 모바일 반응형, focus-visible 3px ring, 스킵링크, `break-keep`(한글 단어 안 쪼개짐), 다크모드
+- [x] **10. GitHub Pages 배포** — `output: export`, public/index.html 로케일 리다이렉트, .nojekyll, CNAME, deploy.yml(prod→Pages)·ci.yml(dev), dev/prod 푸시
+- [x] **11. 온사이트 docs(추가)** — USAGE.md/ARCHITECTURE.md 워크플로 분석 → 10개 `/docs/<slug>` 정적 페이지(사이드바·Shiki vitesse 하이라이팅·복사)
+- [x] **12. 브랜드(추가)** — BrandMark 테마 적응형(border·round 제거), 헤더 GitHub 아이콘 ghost(무border)
 
 ## 상세
 
@@ -84,3 +86,4 @@
 ## 로그
 
 - 2026-06-13: 환경 파악 완료(빈 폴더·bun 1.3.11·메인 레포 로컬 존재·릴리스 API 404·BBlog 참조 가능). 핵심 사실 수집·PROCESS.md 작성. → Q0(모호점) 질문 단계.
+- 2026-06-13: 전 항목 완료 + 라이브 배포. 세션 중 추가 요청 반영: 한/영/일 i18n(영어 기본·폴백), Next 전수조사(`<a>`→`<Link>`), 스크롤바 숨김 + VirtualScroll, motion + 커서 글로우, BrandMark 개선(border·round 제거·테마 적응형), GitHub 아이콘 무border, 온사이트 docs 10페이지(Shiki 하이라이팅). **배포 타깃 Vercel→GitHub Pages 전환**: `github-pages` 환경에 prod 브랜치 정책 추가 후 배포 성공. 라이브 검증: `https://stepper.gumyo.net/`(브라우저 언어 감지 리다이렉트)·`/install-files/install.sh`(200, application/x-sh)·`/en/docs/*`·robots·sitemap 모두 200. 커밋 author=Hyunseok Byun 단독, co-author 트레일러 없음.
