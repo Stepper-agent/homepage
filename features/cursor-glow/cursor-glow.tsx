@@ -1,36 +1,32 @@
 'use client'
 
-import { motion, useMotionValue, useSpring } from 'motion/react'
-import { useEffect } from 'react'
-
-const GLOW_SIZE = 640
+import { useEffect, useRef } from 'react'
 
 export const CursorGlow = () => {
-    const x = useMotionValue(-GLOW_SIZE)
-    const y = useMotionValue(-GLOW_SIZE)
-    const springX = useSpring(x, { stiffness: 140, damping: 22, mass: 0.4 })
-    const springY = useSpring(y, { stiffness: 140, damping: 22, mass: 0.4 })
+    const spotlightRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
+        let frame = 0
         const handleMove = (event: PointerEvent) => {
-            x.set(event.clientX - GLOW_SIZE / 2)
-            y.set(event.clientY - GLOW_SIZE / 2)
+            cancelAnimationFrame(frame)
+            frame = requestAnimationFrame(() => {
+                const node = spotlightRef.current
+                if (!node) return
+                node.style.setProperty('--mx', `${event.clientX}px`)
+                node.style.setProperty('--my', `${event.clientY}px`)
+            })
         }
         window.addEventListener('pointermove', handleMove, { passive: true })
-        return () => window.removeEventListener('pointermove', handleMove)
-    }, [x, y])
+        return () => {
+            window.removeEventListener('pointermove', handleMove)
+            cancelAnimationFrame(frame)
+        }
+    }, [])
 
     return (
-        <motion.div
-            aria-hidden
-            className='pointer-events-none fixed left-0 top-0 z-0 rounded-full'
-            style={{
-                x: springX,
-                y: springY,
-                width: GLOW_SIZE,
-                height: GLOW_SIZE,
-                background: 'radial-gradient(circle, var(--cursor-glow-color), transparent 70%)',
-            }}
-        />
+        <div aria-hidden className='pointer-events-none fixed inset-0 z-0'>
+            <div className='cursor-grid absolute inset-0' />
+            <div ref={spotlightRef} className='cursor-spotlight absolute inset-0' />
+        </div>
     )
 }
