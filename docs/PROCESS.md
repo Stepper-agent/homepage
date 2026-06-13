@@ -50,9 +50,10 @@
 
 ## 라운드 2 (스텝별 commit+push dev, 3단계 후 prod)
 
-- [ ] **R2-1. 헤더 Docs 링크** — `#docs` 섹션 스크롤 → `/[lang]/docs` 최상위 페이지로 (footer도 일관)
-- [ ] **R2-2. 업데이트 로그** — `scripts/gen-update-log.ts`(stepper 로컬 폴더의 git tag/commit·Cargo.toml 읽어 버전별 로그 생성) → `entities/update-log/*` → `/[lang]/docs/update-log` 페이지(사이드바 포함). 수동 실행 커맨드.
-- [ ] **R2-3. 그리드 글로우** — 커서 추적 원형 글로우 → 그리드 배경 + 커서 주변 발광(마스크) 효과. 라이트 모드 글로우 살짝 진하게.
+- [x] **R2-1. 헤더 Docs 링크** — header·footer Docs → `/[lang]/docs`. (라이브 `href="/en/docs/"` 확인)
+- [x] **R2-2. 업데이트 로그** — `bun run gen:update-log`(STEPPER_REPO git tag/commit·Cargo.toml → conventional-commit 그룹화) → `entities/update-log/*` → `/[lang]/docs/update-log`(사이드바 포함, 커밋 해시 링크). tsconfig에서 `scripts` 제외(Bun 전용).
+- [x] **R2-3. 그리드 글로우** — `whereismycursor`(docs/index.html) 효과 포팅: 정적 마스크 그리드(`.cursor-grid`) + 커서 추적 스포트라이트(`.cursor-spotlight`, CSS `--mx/--my` + 120ms). 글로우 라이트 0.05→0.09·다크 0.07→0.08 강화. motion 제거.
+- 배포: dev에 스텝별 커밋·푸시 후 prod fast-forward → 푸시 → Pages 배포 성공. 라이브 검증 완료.
 
 ## 상세
 
