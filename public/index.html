@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>stepper</title>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="canonical" href="https://stepper.gumyo.net/en/" />
+        <noscript><meta http-equiv="refresh" content="0; url=/en/" /></noscript>
+        <script>
+            ;(function () {
+                var supported = ['en', 'ko', 'ja']
+                var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en'
+                var code = String(nav).toLowerCase().split('-')[0]
+                var target = supported.indexOf(code) !== -1 ? code : 'en'
+                window.location.replace('/' + target + '/')
+            })()
+        </script>
+    </head>
+    <body>
+        <p>Redirecting to <a href="/en/">stepper</a>…</p>
+    </body>
+</html>
