@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
+        "build": "bun run gen:update-log && next build",
         "start": "next start",
         "format": "prettier --write .",
         "gen:update-log": "bun run scripts/gen-update-log.ts"
