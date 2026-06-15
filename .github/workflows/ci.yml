@@ -1,8 +1,8 @@
 name: CI
 
 on:
-    push:
-        branches: [dev]
+    # dev is a free working branch — no build runs on a dev push. CI validates
+    # pull requests; the real build/deploy happens on the prod push (deploy.yml).
     pull_request:
         branches: [dev, prod]
 

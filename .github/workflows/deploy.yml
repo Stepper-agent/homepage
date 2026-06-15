@@ -3,12 +3,12 @@ name: Deploy to GitHub Pages
 on:
     push:
         branches: [prod]
+    # A stepper release triggers this via the API with `ref: prod` (from stepper's
+    # release.yml) for an instant rebuild, so the "latest release" badge + update
+    # log reflect the new version right away. `workflow_dispatch` keeps the run on
+    # prod (the only branch the github-pages environment allows to deploy); a
+    # `repository_dispatch` would run on the default branch (dev) and be rejected.
     workflow_dispatch:
-    # A stepper release pings this (from stepper's release.yml) for an instant
-    # rebuild, so the "latest release" badge + update log reflect the new version
-    # right away instead of waiting for the daily cron.
-    repository_dispatch:
-        types: [stepper-release]
     schedule:
         # Static export has no ISR — rebuild daily so the "latest release" badge and
         # the update log (regenerated from the GitHub API at build) stay current even
