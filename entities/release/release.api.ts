@@ -5,11 +5,16 @@ const REVALIDATE_SECONDS = 3600
 
 export const getLatestRelease = async (): Promise<LatestRelease | null> => {
     try {
+        // Authenticate the build-time fetch when a token is present (CI). The
+        // unauthenticated GitHub API is 60 req/hr per IP — easily exhausted by
+        // repeated Pages builds, which would drop the badge to null.
+        const token = process.env.GITHUB_TOKEN
         const response = await fetch(STEPPER.releasesLatestApi, {
             headers: {
                 'Accept': 'application/vnd.github+json',
                 'X-GitHub-Api-Version': '2022-11-28',
                 'User-Agent': 'stepper-web',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             next: { revalidate: REVALIDATE_SECONDS },
         })
