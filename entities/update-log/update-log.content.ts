@@ -4,7 +4,7 @@ export const UPDATE_LOG: UpdateLogEntry[] = [
     {
         version: '0.2.0',
         tag: 'v0.2.0',
-        date: '2026-06-15T09:39:08+09:00',
+        date: '2026-06-15T00:39:08Z',
         groups: [
             {
                 label: 'Features',
@@ -16,22 +16,12 @@ export const UPDATE_LOG: UpdateLogEntry[] = [
                     },
                 ],
             },
-            {
-                label: 'Chores',
-                items: [
-                    {
-                        type: 'chore',
-                        subject: 'release v0.2.0',
-                        hash: '2c28dd2',
-                    },
-                ],
-            },
         ],
     },
     {
         version: '0.1.0',
         tag: 'v0.1.0',
-        date: '2026-06-14T17:10:03+09:00',
+        date: '2026-06-14T08:10:03Z',
         groups: [
             {
                 label: 'Features',

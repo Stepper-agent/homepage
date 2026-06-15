@@ -58,6 +58,10 @@ const gh = async <T>(path: string): Promise<T> => {
 // marker; keep them out of the user-facing changelog.
 const isAutomated = (message: string) => /\[(skip ci|ci skip|no ci|skip actions|actions skip)\]/i.test(message)
 
+// Release/version-bump chores are housekeeping, not a user-facing change — drop
+// them so the changelog shows only real features and fixes.
+const isReleaseChore = (subject: string) => /^chore(\([^)]*\))?:\s*(release\b|bump\b|v?\d+\.\d+)/i.test(subject)
+
 const subjectOf = (message: string) => message.split('\n', 1)[0]
 
 const parseSubject = (sha: string, message: string): UpdateLogChange => {
@@ -83,7 +87,9 @@ const commitsInRange = async (base: string | null, head: string): Promise<Update
     const raw = base
         ? (await gh<GhCompare>(`/compare/${base}...${head}?per_page=100`)).commits.slice().reverse()
         : await gh<GhCommit[]>(`/commits?sha=${head}&per_page=100`)
-    return raw.filter((commit) => !isAutomated(commit.commit.message)).map((commit) => parseSubject(commit.sha, commit.commit.message))
+    return raw
+        .filter((commit) => !isAutomated(commit.commit.message) && !isReleaseChore(subjectOf(commit.commit.message)))
+        .map((commit) => parseSubject(commit.sha, commit.commit.message))
 }
 
 const semverDesc = (a: string, b: string) => {
