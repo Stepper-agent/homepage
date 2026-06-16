@@ -989,18 +989,80 @@ export const DOC_PAGES_KO: DocPage[] = [
                 lang: 'sh',
                 code: 'cargo check --workspace                       # Type check\ncargo clippy --workspace --all-targets        # Lint (0 warnings enforced)\ncargo test --workspace                        # full network-less suite (live mcp_live/e2e skip if env unset)\ncargo run                                     # Interactive TUI (real tty + API keys required)\ncargo run -- -p "..." --model anthropic/claude-x   # Headless one-shot (auto-approve)\ncargo run -- --resume <session-id>            # Resume session\ncargo run -- auth login --codex               # Codex OAuth login\ncargo run -- config --schema | --validate     # Settings schema/validation\ncargo run -- init                             # Scaffold .stepper/ (stepper.md + setting.json)',
             },
+        ],
+    },
+    {
+        slug: 'roadmap',
+        title: '로드맵',
+        description: 'stepper가 출시한 것, 실사용을 향해 다듬는 중인 것, 그리고 의도적으로 보류한 한계.',
+        blocks: [
+            {
+                kind: 'paragraph',
+                text: '이 페이지는 stepper의 전달 상태를 한눈에 정리한다: 출시된 기능, 일상적 사용을 향해 진행 중인 작업, 의도적으로 보류한 한계(사유 포함), 그리고 유지보수 후속 항목. 다른 페이지가 각 요소의 동작 방식을 다루고, 이 페이지는 상위 수준의 상태를 보여준다.',
+            },
             {
                 kind: 'heading',
-                text: '알려진 한계 및 로드맵',
+                text: '출시됨',
+            },
+            {
+                kind: 'paragraph',
+                text: '구현·테스트 완료되어 현재 릴리스에서 사용할 수 있다.',
             },
             {
                 kind: 'list',
                 items: [
-                    '**Phase 4(테스트 강화)**: 완료. 격리 불변식 CI, core 통합 테스트(오케스트레이터, 컴팩션, 세션/되감기, 비용, 병렬 레이어, dispatch, 취소), 권한 매트릭스, TUI 렌더 스냅샷, MCP 폐쇄형 듀플렉스 에코, provider/providers 픽스처. 테스트: 80 → 413. 프로토콜 `context_pct_left` u64 오버플로 수정.',
-                    '**Phase 5(e2e)**: 라이브 테스트(2-레이어 파이프라인 ollama-cloud→oMLX, 되감기, 재개)가 실제 프로바이더 대상으로 실행되어 통과합니다. 이들은 기본 `cargo test`에서 건너뛰도록 `#[ignore]` + 환경 변수 게이팅(`STEPPER_E2E`) 상태로 유지됩니다.',
-                    '**Phase 6(실사용)**: 실제 LLM 스트리밍, 실제 tty TUI, Codex 백엔드, `/init` 다듬기, 되감기/재개 사용자 경험.',
-                    '**구현됨(B/C 기능)**: dispatch 도구, 모델 기반 컴팩션, 핸드오프 재시도/건너뛰기, `alwaysLoad`, 컨텍스트 윈도우 오버라이드, 슬래시 커맨드 팔레트, bash 쓰기를 프로젝트로 제한하는 옵트인 macOS Seatbelt OS 샌드박스.',
-                    '**보류됨(수용된 한계)**: WriteFile TOCTOU 심볼릭 링크 교체(단일 사용자 개발 CLI 범위), gix 체크포인트 백엔드(복사 방식으로 동작), 키링 네이티브 라이브러리 폐쇄형 테스트(테스트에서 keychain 사용 불가), MCP HTTP 인증 라이브 테스트, `McpManager::connect` 성공 분기 폐쇄형 테스트(라이브 서버 필요).',
+                    '**레이어드 파이프라인 & 멀티 프로바이더** — 오케스트레이터가 서브에이전트 레이어의 순서 있는 파이프라인으로 작업을 위임하며, 각 레이어는 자체 프로바이더·모델·새 컨텍스트 윈도우를 가진다. 순차 또는 병렬 팬아웃(`assign_tasks` + 라이브 워커 패널).',
+                    '**권한 시스템** — `auto` / `plan` / `accept-edits` 모드, 영속 승인을 포함한 `allow` / `ask` / `deny` 규칙, 복합 bash 에스컬레이션, fail-closed 헤드리스 실행.',
+                    '**인증** — 환경 변수 또는 OS 키링(`stepper auth set-key` / `delete-key`)을 통한 프로바이더 키, 그리고 Codex(ChatGPT) OAuth.',
+                    '**세션 & 제어** — 세션 재개, 체크포인트 + `/rewind`, 모델 기반 컴팩션, 훅, 스킬(점진적 공개), 슬래시 커맨드, MCP(stdio/HTTP) 서버.',
+                    '**옵트인 OS 샌드박스** — macOS Seatbelt 프로파일이 `bash` 도구의 쓰기를 프로젝트로 제한한다(권한 엔진 아래의 방어 심층).',
+                    '**테스트 강화** — 격리 불변식 CI, core 통합 테스트(오케스트레이터, 컴팩션, 세션/되감기, 비용, 병렬 레이어, dispatch, 취소), 권한 매트릭스, TUI 렌더 스냅샷, 폐쇄형 MCP 에코, 프로바이더 픽스처 — 800개 이상의 네트워크 비의존 테스트.',
+                    '**라이브 엔드투엔드** — 2-레이어 파이프라인(ollama-cloud → oMLX), 스트리밍, `/rewind`, 재개가 실제 프로바이더 대상으로 검증되었다(`#[ignore]` + `STEPPER_E2E` 게이팅으로 유지되어 기본 `cargo test`는 건너뛴다).',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: '진행 중',
+            },
+            {
+                kind: 'paragraph',
+                text: '구현되었으나 라이브·일상 사용을 향해 아직 다듬는 중이다.',
+            },
+            {
+                kind: 'list',
+                items: [
+                    '라이브 스트리밍 모델로 구동되는 인터랙티브 tty TUI(헤드리스 `-p` 경로와 오케스트레이터는 이미 라이브 검증됨).',
+                    'Codex(ChatGPT) 백엔드 라이브 인증 및 스트리밍.',
+                    '`/init` 스캐폴딩 개선과 `/rewind` / 재개 사용자 경험.',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: '보류됨 (수용된 한계)',
+            },
+            {
+                kind: 'paragraph',
+                text: '의도적으로 아직 처리하지 않은 알려진 한계와 그 사유.',
+            },
+            {
+                kind: 'list',
+                items: [
+                    '**WriteFile TOCTOU 심볼릭 링크 교체** — 단일 사용자 개발 CLI 범위 밖.',
+                    '**gix 기반 체크포인트** — 복사 방식 스냅샷터가 동작하며, git 백엔드는 추후 최적화.',
+                    '**폐쇄형 키링 테스트** — CI에서 OS 키체인을 쓸 수 없어, 키링은 통합 테스트로만 유지.',
+                    '**라이브 MCP HTTP 인증**과 `McpManager::connect` 성공 경로 — 둘 다 라이브 서버 필요.',
+                    '**백그라운드 `!cmd &` 샌드박스 동등성** — 포그라운드 `bash` 도구는 제한되지만, 백그라운드 경로(`proc.rs`)는 TUI에서 쓰기 가능 루트를 전달해야 샌드박싱할 수 있다.',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: '유지보수',
+            },
+            {
+                kind: 'list',
+                items: [
+                    '전이 의존성 `reqwest` 0.12 / 0.13 버전 중복 제거.',
+                    'GitHub Actions 릴리스/배포 워크플로우를 제거 예정인 deprecated Node.js 20 액션에서 옮기기.',
                 ],
             },
         ],

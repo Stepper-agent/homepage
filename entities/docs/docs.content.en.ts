@@ -995,18 +995,80 @@ export const DOC_PAGES_EN: DocPage[] = [
                 lang: 'sh',
                 code: 'cargo check --workspace                       # Type check\ncargo clippy --workspace --all-targets        # Lint (0 warnings enforced)\ncargo test --workspace                        # full network-less suite (live mcp_live/e2e skip if env unset)\ncargo run                                     # Interactive TUI (real tty + API keys required)\ncargo run -- -p "..." --model anthropic/claude-x   # Headless one-shot (auto-approve)\ncargo run -- --resume <session-id>            # Resume session\ncargo run -- auth login --codex               # Codex OAuth login\ncargo run -- config --schema | --validate     # Settings schema/validation\ncargo run -- init                             # Scaffold .stepper/ (stepper.md + setting.json)',
             },
+        ],
+    },
+    {
+        slug: 'roadmap',
+        title: 'Roadmap',
+        description: 'What stepper has shipped, what is being hardened for real-world use, and the limits deliberately deferred.',
+        blocks: [
+            {
+                kind: 'paragraph',
+                text: "This page tracks stepper's delivery status at a glance: shipped capabilities, work in progress toward day-to-day use, limits deliberately deferred (with rationale), and maintenance follow-ups. The other pages cover how each piece works; this one is the high-level state.",
+            },
             {
                 kind: 'heading',
-                text: 'Known Limits & Roadmap',
+                text: 'Shipped',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Implemented, test-covered, and available in the current release.',
             },
             {
                 kind: 'list',
                 items: [
-                    '**Phase 4 (test hardening)**: Completed. Isolation invariants CI, core integration tests (orchestrator, compaction, session/rewind, cost, parallel layer, dispatch, cancellation), permission matrix, TUI render snapshots, MCP hermetic duplex echo, provider/providers fixtures. Tests: 80 → 413. Fixed protocol `context_pct_left` u64 overflow.',
-                    '**Phase 5 (e2e)**: Live tests (2-layer pipeline ollama-cloud→oMLX, rewind, resume) are executed and passing against real providers; they stay `#[ignore]` + env-gated (`STEPPER_E2E`) so the default `cargo test` skips them.',
-                    '**Phase 6 (real use)**: Real LLM streaming, real tty TUI, Codex backend, `/init` polish, rewind/resume user experience.',
-                    '**Implemented (B/C features)**: Dispatch tool, model-driven compaction, handoff retry/skip, `alwaysLoad`, context window override, slash command palette, opt-in macOS Seatbelt OS sandbox confining bash writes to the project.',
-                    '**Deferred (accepted limits)**: WriteFile TOCTOU symlink swap (single-user dev CLI scope), gix checkpoint backend (copy works), keyring native library hermetic (keychain unavailable in test), MCP HTTP auth live testing, `McpManager::connect` success arm hermetic (live server required).',
+                    '**Layered pipeline & multi-provider** — an orchestrator delegates through an ordered pipeline of sub-agent layers, each with its own provider, model, and fresh context window; sequential or parallel fan-out (`assign_tasks` + a live worker panel).',
+                    '**Permission system** — `auto` / `plan` / `accept-edits` modes, `allow` / `ask` / `deny` rules with persisted approvals, compound-bash escalation, and fail-closed headless runs.',
+                    '**Auth** — provider keys via env vars or the OS keyring (`stepper auth set-key` / `delete-key`), plus Codex (ChatGPT) OAuth.',
+                    '**Sessions & control** — session resume, checkpoint + `/rewind`, model-driven compaction, hooks, skills (progressive disclosure), slash commands, and MCP (stdio/HTTP) servers.',
+                    "**Opt-in OS sandbox** — a macOS Seatbelt profile confines the `bash` tool's writes to the project (defense-in-depth under the permission engine).",
+                    '**Test hardening** — isolation-invariant CI, core integration tests (orchestrator, compaction, session/rewind, cost, parallel layer, dispatch, cancellation), the permission matrix, TUI render snapshots, hermetic MCP echo, and provider fixtures — 800+ network-less tests.',
+                    '**Live end-to-end** — the two-layer pipeline (ollama-cloud → oMLX), streaming, `/rewind`, and resume are validated against real providers (kept `#[ignore]` + `STEPPER_E2E`-gated so the default `cargo test` skips them).',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: 'In progress',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Implemented but still being hardened against live, day-to-day use.',
+            },
+            {
+                kind: 'list',
+                items: [
+                    'The interactive tty TUI driven by a live streaming model (the headless `-p` path and the orchestrator are already validated live).',
+                    'Codex (ChatGPT) backend live auth and streaming.',
+                    '`/init` scaffolding refinement and the `/rewind` / resume user experience.',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: 'Deferred (accepted limits)',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Known limits intentionally not addressed yet, with the reasoning.',
+            },
+            {
+                kind: 'list',
+                items: [
+                    '**WriteFile TOCTOU symlink swap** — out of scope for a single-user dev CLI.',
+                    '**gix-backed checkpoints** — the copy-based snapshotter works; a git backend is a later optimization.',
+                    '**Hermetic keyring test** — the OS keychain is unavailable in CI, so the keyring stays integration-tested only.',
+                    '**Live MCP HTTP auth** and the `McpManager::connect` success path — both need a live server.',
+                    '**Background `!cmd &` sandbox parity** — the foreground `bash` tool is confined; the background path (`proc.rs`) needs the writable roots threaded from the TUI before it can be sandboxed too.',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: 'Maintenance',
+            },
+            {
+                kind: 'list',
+                items: [
+                    'De-duplicate the transitive `reqwest` 0.12 / 0.13 versions.',
+                    'Move the GitHub Actions release/deploy workflows off the deprecated Node.js 20 actions before they are removed.',
                 ],
             },
         ],

@@ -998,18 +998,80 @@ export const DOC_PAGES_JA: DocPage[] = [
                 lang: 'sh',
                 code: 'cargo check --workspace                       # Type check\ncargo clippy --workspace --all-targets        # Lint (0 warnings enforced)\ncargo test --workspace                        # full network-less suite (live mcp_live/e2e skip if env unset)\ncargo run                                     # Interactive TUI (real tty + API keys required)\ncargo run -- -p "..." --model anthropic/claude-x   # Headless one-shot (auto-approve)\ncargo run -- --resume <session-id>            # Resume session\ncargo run -- auth login --codex               # Codex OAuth login\ncargo run -- config --schema | --validate     # Settings schema/validation\ncargo run -- init                             # Scaffold .stepper/ (stepper.md + setting.json)',
             },
+        ],
+    },
+    {
+        slug: 'roadmap',
+        title: 'ロードマップ',
+        description: 'stepper が出荷したもの、実利用に向けて強化中のもの、そして意図的に保留した制限。',
+        blocks: [
+            {
+                kind: 'paragraph',
+                text: 'このページは stepper の提供状況を一目で整理します。出荷済みの機能、日常利用に向けて進行中の作業、意図的に保留した制限(理由付き)、そして保守のフォローアップです。他のページが各要素の仕組みを説明し、このページは全体的な状態を示します。',
+            },
             {
                 kind: 'heading',
-                text: '既知の制限とロードマップ',
+                text: '出荷済み',
+            },
+            {
+                kind: 'paragraph',
+                text: '実装・テスト済みで、現在のリリースで利用できます。',
             },
             {
                 kind: 'list',
                 items: [
-                    '**Phase 4(テスト強化)**: 完了。分離不変条件のCI、core統合テスト(オーケストレーター、コンパクション、セッション/巻き戻し、コスト、並列レイヤー、dispatch、キャンセル)、権限マトリクス、TUIレンダースナップショット、MCP密閉型デュプレックスエコー、provider/providersフィクスチャ。テスト: 80 → 413。プロトコルの`context_pct_left` u64オーバーフローを修正。',
-                    '**Phase 5(e2e)**: ライブテスト(2レイヤーパイプライン ollama-cloud→oMLX、巻き戻し、再開)は実際のプロバイダーに対して実行され、合格しています。これらはデフォルトの`cargo test`がスキップするよう`#[ignore]` + 環境変数ゲーティング(`STEPPER_E2E`)の状態で維持されます。',
-                    '**Phase 6(実利用)**: 実際のLLMストリーミング、実際のttyでのTUI、Codexバックエンド、`/init`の仕上げ、巻き戻し/再開のユーザー体験。',
-                    '**実装済み(B/C機能)**: dispatchツール、モデル駆動コンパクション、ハンドオフの再試行/スキップ、`alwaysLoad`、コンテキストウィンドウのオーバーライド、スラッシュコマンドパレット、bashの書き込みをプロジェクトに限定するオプトインのmacOS Seatbelt OSサンドボックス。',
-                    '**保留(受容された制限)**: WriteFileのTOCTOUシンボリックリンク差し替え(単一ユーザー向け開発CLIの範囲)、gixチェックポイントバックエンド(コピー方式で動作)、キーリングのネイティブライブラリの密閉型テスト(テストでkeychainが利用不可)、MCP HTTP認証のライブテスト、`McpManager::connect`の成功分岐の密閉型テスト(ライブサーバーが必要)。',
+                    '**レイヤードパイプライン & マルチプロバイダー** — オーケストレーターがサブエージェントレイヤーの順序付きパイプラインに作業を委譲し、各レイヤーは独自のプロバイダー・モデル・新しいコンテキストウィンドウを持ちます。逐次または並列のファンアウト(`assign_tasks` + ライブワーカーパネル)。',
+                    '**権限システム** — `auto` / `plan` / `accept-edits` モード、永続化された承認を含む `allow` / `ask` / `deny` ルール、複合 bash のエスカレーション、fail-closed なヘッドレス実行。',
+                    '**認証** — 環境変数または OS キーリング(`stepper auth set-key` / `delete-key`)によるプロバイダーキー、および Codex(ChatGPT)OAuth。',
+                    '**セッション & 制御** — セッション再開、チェックポイント + `/rewind`、モデル駆動のコンパクション、フック、スキル(段階的開示)、スラッシュコマンド、MCP(stdio/HTTP)サーバー。',
+                    '**オプトインの OS サンドボックス** — macOS Seatbelt プロファイルが `bash` ツールの書き込みをプロジェクトに限定します(権限エンジンの下での多層防御)。',
+                    '**テスト強化** — 分離不変条件の CI、core 統合テスト(オーケストレーター、コンパクション、セッション/巻き戻し、コスト、並列レイヤー、dispatch、キャンセル)、権限マトリクス、TUI レンダースナップショット、密閉型 MCP エコー、プロバイダーフィクスチャ — 800 以上のネットワーク非依存テスト。',
+                    '**ライブのエンドツーエンド** — 2 レイヤーパイプライン(ollama-cloud → oMLX)、ストリーミング、`/rewind`、再開が実際のプロバイダーに対して検証済みです(`#[ignore]` + `STEPPER_E2E` ゲーティングで維持され、デフォルトの `cargo test` はスキップします)。',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: '進行中',
+            },
+            {
+                kind: 'paragraph',
+                text: '実装済みですが、ライブの日常利用に向けてまだ強化中です。',
+            },
+            {
+                kind: 'list',
+                items: [
+                    'ライブストリーミングモデルで駆動するインタラクティブな tty TUI(ヘッドレス `-p` パスとオーケストレーターは既にライブ検証済み)。',
+                    'Codex(ChatGPT)バックエンドのライブ認証とストリーミング。',
+                    '`/init` スキャフォールディングの改善と `/rewind` / 再開のユーザー体験。',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: '保留(受け入れた制限)',
+            },
+            {
+                kind: 'paragraph',
+                text: '意図的にまだ対応していない既知の制限と、その理由。',
+            },
+            {
+                kind: 'list',
+                items: [
+                    '**WriteFile TOCTOU のシンボリックリンク差し替え** — 単一ユーザー開発 CLI の範囲外。',
+                    '**gix ベースのチェックポイント** — コピー方式のスナップショッターが動作しており、git バックエンドは後の最適化。',
+                    '**密閉型のキーリングテスト** — CI では OS キーチェーンを利用できないため、キーリングは統合テストのみで維持。',
+                    '**ライブの MCP HTTP 認証** と `McpManager::connect` の成功パス — どちらもライブサーバーが必要。',
+                    '**バックグラウンド `!cmd &` のサンドボックス同等性** — フォアグラウンドの `bash` ツールは限定されますが、バックグラウンドパス(`proc.rs`)は TUI から書き込み可能なルートを渡してからサンドボックス化できます。',
+                ],
+            },
+            {
+                kind: 'heading',
+                text: '保守',
+            },
+            {
+                kind: 'list',
+                items: [
+                    '推移的依存の `reqwest` 0.12 / 0.13 バージョンの重複を解消。',
+                    'GitHub Actions のリリース/デプロイワークフローを、削除予定の非推奨 Node.js 20 アクションから移行。',
                 ],
             },
         ],
