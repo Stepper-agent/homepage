@@ -16,7 +16,11 @@ const sitemap = (): MetadataRoute.Sitemap => {
     }))
     const docsIndex = LOCALES.map((lang) => ({ url: `${STEPPER.siteUrl}/${lang}/docs`, changeFrequency: 'monthly' as const, priority: 0.6 }))
     const docPages = LOCALES.flatMap((lang) =>
-        getDocPages().map((page) => ({ url: `${STEPPER.siteUrl}/${lang}/docs/${page.slug}`, changeFrequency: 'monthly' as const, priority: 0.5 })),
+        getDocPages(lang).map((page) => ({
+            url: `${STEPPER.siteUrl}/${lang}/docs/${page.slug}`,
+            changeFrequency: 'monthly' as const,
+            priority: 0.5,
+        })),
     )
     return [...home, ...docsIndex, ...docPages]
 }

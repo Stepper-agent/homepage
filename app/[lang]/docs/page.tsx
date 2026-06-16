@@ -11,7 +11,7 @@ const DocsIndex = async ({ params }: DocsIndexProps) => {
     const { lang } = await params
     if (!isLocale(lang)) notFound()
     const dict = getDictionary(lang)
-    const nav = getDocNav()
+    const nav = getDocNav(lang)
 
     return (
         <div>

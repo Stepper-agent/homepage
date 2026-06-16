@@ -10,7 +10,7 @@ import { getDocNav } from '@entities/docs/docs.api'
 type DocsSectionProps = { lang: Locale; dict: Dictionary }
 
 export const DocsSection: FC<DocsSectionProps> = ({ lang, dict }) => {
-    const nav = getDocNav()
+    const nav = getDocNav(lang)
     return (
         <Section id='docs' heading={dict.docs.heading} lead={dict.docs.lead}>
             <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>

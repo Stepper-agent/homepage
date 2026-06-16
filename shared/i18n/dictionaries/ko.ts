@@ -126,6 +126,9 @@ export const ko: Dictionary = {
     docs: {
         heading: '문서',
         lead: '전체 사용법·설정·providers·레이어·권한·CI를 여기에서 바로 읽어보세요.',
+        overview: '개요',
+        updateLog: '업데이트 로그',
+        updateLogLead: '저장소에서 생성된 stepper의 버전별 변경 사항입니다.',
         usageCard: { title: 'USAGE.md', body: '설치, CLI 레퍼런스, setting.json, providers, 레이어, 권한, MCP, CI.' },
         architectureCard: { title: 'ARCHITECTURE.md', body: '10개 크레이트 워크스페이스 맵, 데이터 흐름, 격리 불변식.' },
         cta: '전체 문서 보기',

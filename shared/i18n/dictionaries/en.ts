@@ -124,6 +124,9 @@ export const en = {
     docs: {
         heading: 'Documentation',
         lead: 'Full usage, configuration, providers, layers, permissions, and CI — read it all right here.',
+        overview: 'Overview',
+        updateLog: 'Update log',
+        updateLogLead: 'Version-by-version changes to stepper, generated from the repository.',
         usageCard: { title: 'USAGE.md', body: 'Install, CLI reference, setting.json, providers, layers, permissions, MCP, and CI.' },
         architectureCard: { title: 'ARCHITECTURE.md', body: 'The 10-crate workspace map, data flow, and isolation invariants.' },
         cta: 'Browse all docs',

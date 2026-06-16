@@ -127,6 +127,9 @@ export const ja: Dictionary = {
     docs: {
         heading: 'ドキュメント',
         lead: '完全な使い方・設定・providers・レイヤー・権限・CI を、ここで直接読めます。',
+        overview: '概要',
+        updateLog: '更新ログ',
+        updateLogLead: 'リポジトリから生成された stepper のバージョンごとの変更点です。',
         usageCard: { title: 'USAGE.md', body: 'インストール、CLI リファレンス、setting.json、providers、レイヤー、権限、MCP、CI。' },
         architectureCard: { title: 'ARCHITECTURE.md', body: '10 クレートのワークスペースマップ、データフロー、分離の不変条件。' },
         cta: 'すべてのドキュメントを見る',
