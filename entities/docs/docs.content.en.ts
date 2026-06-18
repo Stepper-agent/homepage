@@ -1022,7 +1022,7 @@ export const DOC_PAGES_EN: DocPage[] = [
                     '**Auth** — provider keys via env vars or the OS keyring (`stepper auth set-key` / `delete-key`), plus Codex (ChatGPT) OAuth.',
                     '**Sessions & control** — session resume, checkpoint + `/rewind`, model-driven compaction, hooks, skills (progressive disclosure), slash commands, and MCP (stdio/HTTP) servers.',
                     "**Opt-in OS sandbox** — a macOS Seatbelt profile confines the `bash` tool's writes to the project (defense-in-depth under the permission engine).",
-                    '**Test hardening** — isolation-invariant CI, core integration tests (orchestrator, compaction, session/rewind, cost, parallel layer, dispatch, cancellation), the permission matrix, TUI render snapshots, hermetic MCP echo, and provider fixtures — 800+ network-less tests.',
+                     '**Test hardening** — isolation-invariant CI, core integration tests (orchestrator, compaction, session/rewind, cost, parallel layer, dispatch, cancellation), the permission matrix, TUI render snapshots, hermetic MCP echo, and provider fixtures — 837 network-less tests.',
                     '**Live end-to-end** — the two-layer pipeline (ollama-cloud → oMLX), streaming, `/rewind`, and resume are validated against real providers (kept `#[ignore]` + `STEPPER_E2E`-gated so the default `cargo test` skips them).',
                 ],
             },
