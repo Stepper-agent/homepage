@@ -62,7 +62,7 @@ export const ja: Dictionary = {
             {
                 title: 'マルチプロバイダー',
                 description:
-                    'Anthropic、OpenAI、ollama-cloud、oMLX（ローカルの Apple Silicon MLX）、Codex（ChatGPT OAuth）。各レイヤーが独自のプロバイダーとモデルを選びます。',
+                    'Anthropic、OpenAI、ollama-cloud、oMLX（ローカルの Apple Silicon MLX）、Codex（ChatGPT OAuth）。/connect で models.dev カタログから任意のプロバイダーを検索・追加でき、各レイヤーが独自のプロバイダーとモデルを選びます。',
             },
             {
                 title: '権限システム',
@@ -77,7 +77,7 @@ export const ja: Dictionary = {
             {
                 title: 'TUI',
                 description:
-                    'ratatui 製のターミナル UI：ライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト）、diff 承認オーバーレイ。あるいは -p でヘッドレス実行。',
+                    'ratatui 製のターミナル UI：ライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト）、diff 承認オーバーレイ、/theme カラーエディター、入力で絞り込む /models ピッカー、/effort による推論強度の調整。あるいは -p でヘッドレス実行。',
             },
             {
                 title: 'セッションと制御',

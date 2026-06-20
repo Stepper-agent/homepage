@@ -59,7 +59,7 @@ export const en = {
             {
                 title: 'Multi-provider',
                 description:
-                    'Anthropic, OpenAI, ollama-cloud, oMLX (local Apple Silicon MLX), and Codex (ChatGPT OAuth). Every layer picks its own provider and model.',
+                    'Anthropic, OpenAI, ollama-cloud, oMLX (local Apple Silicon MLX), and Codex (ChatGPT OAuth). /connect discovers and adds any provider from the models.dev catalog; every layer picks its own provider and model.',
             },
             {
                 title: 'Permission system',
@@ -74,7 +74,7 @@ export const en = {
             {
                 title: 'TUI',
                 description:
-                    'A ratatui terminal UI: live markdown, a status footer (active layer · model · tokens · ctx% gauge · cost), and a diff-approval overlay. Or run headless with -p.',
+                    'A ratatui terminal UI: live markdown, a status footer (active layer · model · tokens · ctx% gauge · cost), a diff-approval overlay, a /theme color editor, a type-to-filter /models picker, and /effort reasoning control. Or run headless with -p.',
             },
             {
                 title: 'Sessions & control',

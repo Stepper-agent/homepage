@@ -61,7 +61,7 @@ export const ko: Dictionary = {
             {
                 title: '멀티 프로바이더',
                 description:
-                    'Anthropic, OpenAI, ollama-cloud, oMLX(로컬 Apple Silicon MLX), Codex(ChatGPT OAuth). 모든 레이어가 자신의 provider와 모델을 고릅니다.',
+                    'Anthropic, OpenAI, ollama-cloud, oMLX(로컬 Apple Silicon MLX), Codex(ChatGPT OAuth). /connect로 models.dev 카탈로그에서 아무 provider나 검색·추가할 수 있고, 모든 레이어가 자신의 provider와 모델을 고릅니다.',
             },
             {
                 title: '권한 시스템',
@@ -76,7 +76,7 @@ export const ko: Dictionary = {
             {
                 title: 'TUI',
                 description:
-                    'ratatui 터미널 UI: 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용), diff 승인 오버레이. 또는 -p로 헤드리스 실행.',
+                    'ratatui 터미널 UI: 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용), diff 승인 오버레이, /theme 색상 편집기, 입력으로 거르는 /models 피커, /effort 추론 강도 조절. 또는 -p로 헤드리스 실행.',
             },
             {
                 title: '세션 & 제어',
