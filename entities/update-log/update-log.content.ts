@@ -2,6 +2,79 @@ import type { UpdateLogEntry } from '@entities/update-log/update-log.type'
 
 export const UPDATE_LOG: UpdateLogEntry[] = [
     {
+        "version": "0.10.0",
+        "tag": "v0.10.0",
+        "date": "2026-06-20T14:51:14Z",
+        "groups": [
+            {
+                "label": "Features",
+                "items": [
+                    {
+                        "type": "feat",
+                        "subject": "opencode 추가 P2 — 테마 카탈로그 / HTTPS_PROXY config / cross-session stats / connect 비활성표시 (v0.10.0)",
+                        "hash": "9b09b8f"
+                    },
+                    {
+                        "type": "feat",
+                        "subject": "opencode P2/잔여 4기능 — 프록시·CA / 알림 / undo·redo / MCP OAuth",
+                        "hash": "adfaa06"
+                    },
+                    {
+                        "type": "feat",
+                        "scope": "config",
+                        "subject": "provider.models map — per-model context/output/pricing override (P1)",
+                        "hash": "8545d70"
+                    },
+                    {
+                        "type": "feat",
+                        "scope": "mcp",
+                        "subject": "per-server enabled / cwd / timeout (P1)",
+                        "hash": "eaa0b39"
+                    },
+                    {
+                        "type": "feat",
+                        "scope": "config",
+                        "subject": "JSONC 설정 + STEPPER_CONFIG env + {env:}/{file:} 치환 (P1)",
+                        "hash": "f1aa9bd"
+                    },
+                    {
+                        "type": "feat",
+                        "scope": "cli",
+                        "subject": "헤드리스 --format json (P1)",
+                        "hash": "389f969"
+                    },
+                    {
+                        "type": "feat",
+                        "scope": "cli",
+                        "subject": "헤드리스 --agent / --file 플래그 (P1)",
+                        "hash": "8686cf5"
+                    },
+                    {
+                        "type": "feat",
+                        "scope": "cli",
+                        "subject": "session list/delete 서브커맨드 + --fork (P1)",
+                        "hash": "2f60ce7"
+                    },
+                    {
+                        "type": "feat",
+                        "subject": "opencode P0 정렬 — 커맨드 override·apply_patch·포매터·LSP·named 서브에이전트",
+                        "hash": "f633bad"
+                    }
+                ]
+            },
+            {
+                "label": "Bug fixes",
+                "items": [
+                    {
+                        "type": "fix",
+                        "subject": "P1 적대 리뷰 확정 결함 4건 수정",
+                        "hash": "f3ed100"
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "version": "0.9.2",
         "tag": "v0.9.2",
         "date": "2026-06-20T01:39:01Z",

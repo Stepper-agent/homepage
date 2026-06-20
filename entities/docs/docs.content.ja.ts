@@ -763,6 +763,85 @@ export const DOC_PAGES_JA: DocPage[] = [
                     ['`n`（承認オーバーレイ）', '操作を拒否'],
                 ],
             },
+            {
+                kind: 'heading',
+                text: 'apply_patch ツール',
+            },
+            {
+                kind: 'paragraph',
+                text: 'apply_patch ツールは、構造化された複数ファイルのパッチ（Add / Update / Delete / Move、`@@` コンテキストハンクとファジーマッチング付き）をアトミックに適用します。まずすべての変更を検証し、いずれかのハンクが失敗したりゲートが拒否されたりした場合は何も書き込みません。',
+            },
+            {
+                kind: 'heading',
+                text: '編集時のフォーマットと LSP',
+            },
+            {
+                kind: 'paragraph',
+                text: 'オプトインの format-on-edit は、ファイル編集ツールの実行後に組み込みカタログ（rustfmt、gofmt、prettier、ruff、biome、…）から一致するフォーマッターを実行します。インストール済みの言語サーバーからの LSP 診断は編集後に収集され、ツール結果に追記されます。どちらもデフォルトでは無効で、setting.json の formatter / lsp キーで有効化します。',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"formatter": true,\n"lsp": true',
+            },
+            {
+                kind: 'heading',
+                text: '名前付きサブエージェント',
+            },
+            {
+                kind: 'paragraph',
+                text: '再利用可能なサブエージェントは `.stepper/agents/<name>/index.md`（モデル、ツール、システムプロンプト）で定義します。呼び出しは task ツールで行うか、プロンプトから `#<name>` でインラインに呼び出します（型先行ピッカーが一覧を表示します）。各サブエージェントは新しいコンテキストを持つ独自のサブエージェントとして実行され、Task 権限ルールでゲートされます。',
+            },
+            {
+                kind: 'heading',
+                text: 'Undo / redo',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/undo` は直前のターンを取り消し、作業ツリーをそのターンの直前のチェックポイントへ復元し、そのターンを破棄します。取り消し前にスナップショットを取るため、`/redo` で再適用できます（どちらも複数ステップ対応）。新しいターンの開始（または `/rewind`、`/resume`、`/clear`、`/compact`）はタイムラインを分岐させ、redo スタックを無効化します。',
+            },
+            {
+                kind: 'heading',
+                text: '通知',
+            },
+            {
+                kind: 'paragraph',
+                text: 'setting.json で notification を設定すると、ターンの完了時、承認待ち時、ターンのエラー時にターミナルベルを鳴らせます。3 つすべてを有効にするには true を、トリガーを選ぶにはオブジェクトを指定します。デフォルトでは無効で、ポータブルなターミナルベルのみ（OS 通知はありません）です。',
+            },
+            {
+                kind: 'heading',
+                text: 'プロキシとプライベート CA',
+            },
+            {
+                kind: 'paragraph',
+                text: '送信 HTTP は標準の HTTP(S)_PROXY / NO_PROXY 環境変数を尊重します。環境変数を使えない構成では、setting.json に明示的なプロキシ（http / https / all / noProxy / disabled）を設定します。企業 / 自己署名のルートは STEPPER_EXTRA_CA_CERTS（PEM バンドル、システムトラストに追加、fail-open）で追加します。プロバイダー呼び出し、web_fetch、http MCP に適用されます。',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"proxy": { "https": "http://proxy.corp:3128", "noProxy": "localhost" }',
+            },
+            {
+                kind: 'heading',
+                text: 'MCP サーバーの OAuth',
+            },
+            {
+                kind: 'paragraph',
+                text: 'OAuth を必要とするリモート（http）MCP サーバーは `stepper mcp auth <name>`（ブラウザフロー、PKCE、動的クライアント登録）で認可します。トークンは `~/.stepper/mcp-auth.json`（0600）に保存され、自動的にリフレッシュされます。`stepper mcp logout` / `status` で管理します。サーバーごとに mcpServers の oauth キーで有効化します。',
+            },
+            {
+                kind: 'heading',
+                text: 'セッション横断の統計',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper stats` は、保存されたすべてのセッションにわたってトークン、コスト、ターン、モデルごと・ツールごとの利用状況を集計します。`--days` で絞り込み、`--models` / `--tools` で内訳を表示し、`--json` で JSON を出力し、`--export`（.csv または .json）でファイルに書き出します。利用状況は今後ターンごとに記録されます。',
+            },
+            {
+                kind: 'code',
+                lang: 'bash',
+                code: 'stepper stats --models --tools\nstepper stats --days 7 --json',
+            },
         ],
     },
     {

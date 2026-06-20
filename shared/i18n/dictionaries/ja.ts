@@ -57,12 +57,17 @@ export const ja: Dictionary = {
             {
                 title: 'レイヤーパイプライン',
                 description:
-                    '各 step は独自のモデル・ツール・システムプロンプトを持つサブエージェントです。デフォルトは順次実行で、レイヤーに parallel: true を指定するとサブタスクごとに 1 ワーカーへ fan-out します。',
+                    '各 step は独自のモデル・ツール・システムプロンプトを持つ独立したサブエージェントです。デフォルトは順次実行で、レイヤーに parallel: true を指定するとサブタスクごとに 1 ワーカーへ fan-out します。名前付きサブエージェントは #agent または task ツールでインラインに呼び出せます。',
             },
             {
                 title: 'マルチプロバイダー',
                 description:
-                    'Anthropic、OpenAI、ollama-cloud、oMLX（ローカルの Apple Silicon MLX）、Codex（ChatGPT OAuth）。/connect で models.dev カタログから任意のプロバイダーを検索・追加でき、各レイヤーが独自のプロバイダーとモデルを選びます。',
+                    'Anthropic、OpenAI、ollama-cloud、oMLX（ローカルの Apple Silicon MLX）、Codex（ChatGPT OAuth）。/connect で models.dev カタログから任意のプロバイダーを検索・追加でき（非対応エントリは無効表示となり、キーが誤ルーティングされることはありません）、各レイヤーが独自のプロバイダーとモデルを選び、モデルごとの context・pricing オーバーライドも任意で設定できます。',
+            },
+            {
+                title: '編集とコードインテリジェンス',
+                description:
+                    '完全なファイルツールに加え、複数ファイルの構造化編集を行う apply_patch、組み込みフォーマッターカタログによるオプトインの format-on-edit、そしてインストール済みの言語サーバーから得た LSP 診断を各編集後にエージェントへフィードバックします。',
             },
             {
                 title: '権限システム',
@@ -70,19 +75,19 @@ export const ja: Dictionary = {
                     'モード（auto / plan / accept-edits）に加えて allow / ask / deny ルールと永続化された approvals。ヘッドレスの -p はデフォルト deny — fail-closed です。',
             },
             {
-                title: 'ガイド付きオンボーディング',
-                description:
-                    '.stepper/ が無い初回実行では、モデルと権限モードの選択を案内し、setting.json を書き出します。--no-init でスキップできます。',
-            },
-            {
                 title: 'TUI',
                 description:
-                    'ratatui 製のターミナル UI：ライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト）、diff 承認オーバーレイ、/theme カラーエディター、入力で絞り込む /models ピッカー、/effort による推論強度の調整。あるいは -p でヘッドレス実行。',
+                    'ratatui 製のターミナル UI：ライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト）、diff 承認オーバーレイ、13 種の組み込みパレットを備えた /theme エディター、入力で絞り込む /models ピッカー、/connect、/effort による推論強度の調整、/undo · /redo、そしてオプションのターミナルベル通知。あるいは -p、--agent、--file、--format json でヘッドレス実行。',
             },
             {
                 title: 'セッションと制御',
                 description:
-                    'セッション resume、checkpoint + /rewind、自動コンテキスト圧縮、hooks、progressive disclosure 方式の skills、スラッシュコマンド、MCP サーバー。',
+                    'セッション resume、list / delete と --fork、checkpoint + /rewind、/undo · /redo、自動コンテキスト圧縮、hooks、progressive disclosure 方式の skills、スラッシュコマンド、MCP サーバー（stdio/http、サーバーごとの設定 + OAuth）、そして stepper stats によるセッション横断の利用統計。',
+            },
+            {
+                title: '設定とエンタープライズ',
+                description:
+                    '{env:} / {file:} 置換と STEPPER_CONFIG オーバーライドに対応する JSONC の setting.json、企業ネットワーク向けの明示的な HTTP(S) プロキシとプライベート CA サポート、そしてリモート MCP サーバー向けの OAuth。',
             },
         ],
     },
@@ -131,7 +136,7 @@ export const ja: Dictionary = {
         updateLog: '更新ログ',
         updateLogLead: 'リポジトリから生成された stepper のバージョンごとの変更点です。',
         usageCard: { title: 'USAGE.md', body: 'インストール、CLI リファレンス、setting.json、providers、レイヤー、権限、MCP、CI。' },
-        architectureCard: { title: 'ARCHITECTURE.md', body: '10 クレートのワークスペースマップ、データフロー、分離の不変条件。' },
+        architectureCard: { title: 'ARCHITECTURE.md', body: '11 クレートのワークスペースマップ、データフロー、分離の不変条件。' },
         cta: 'すべてのドキュメントを見る',
     },
     footer: {

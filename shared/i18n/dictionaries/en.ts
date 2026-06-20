@@ -54,12 +54,17 @@ export const en = {
             {
                 title: 'Layered pipeline',
                 description:
-                    'Each step is an independent sub-agent with its own model, tools, and system prompt. Sequential by default — mark a layer parallel: true to fan out one worker per subtask.',
+                    'Each step is an independent sub-agent with its own model, tools, and system prompt. Sequential by default — mark a layer parallel: true to fan out one worker per subtask. Dispatch a named sub-agent inline with #agent or the task tool.',
             },
             {
                 title: 'Multi-provider',
                 description:
-                    'Anthropic, OpenAI, ollama-cloud, oMLX (local Apple Silicon MLX), and Codex (ChatGPT OAuth). /connect discovers and adds any provider from the models.dev catalog; every layer picks its own provider and model.',
+                    'Anthropic, OpenAI, ollama-cloud, oMLX (local Apple Silicon MLX), and Codex (ChatGPT OAuth). /connect discovers and adds any provider from the models.dev catalog (unsupported entries are shown disabled so a key is never mis-routed); every layer picks its own provider and model, with optional per-model context/pricing overrides.',
+            },
+            {
+                title: 'Editing & code intelligence',
+                description:
+                    'Full file tools plus apply_patch for multi-file structured edits, opt-in format-on-edit from a built-in formatter catalog, and LSP diagnostics from your installed language servers fed back to the agent after each edit.',
             },
             {
                 title: 'Permission system',
@@ -67,19 +72,19 @@ export const en = {
                     'Modes (auto / plan / accept-edits) plus allow / ask / deny rules and persisted approvals. Headless -p is deny-by-default — fail-closed.',
             },
             {
-                title: 'Guided onboarding',
-                description:
-                    'First run with no .stepper/ walks you through a model and a permission mode, then writes setting.json. Skip it with --no-init.',
-            },
-            {
                 title: 'TUI',
                 description:
-                    'A ratatui terminal UI: live markdown, a status footer (active layer · model · tokens · ctx% gauge · cost), a diff-approval overlay, a /theme color editor, a type-to-filter /models picker, and /effort reasoning control. Or run headless with -p.',
+                    'A ratatui terminal UI: live markdown, a status footer (active layer · model · tokens · ctx% gauge · cost), a diff-approval overlay, a /theme editor with 13 built-in palettes, a type-to-filter /models picker, /connect, /effort reasoning control, /undo · /redo, and optional terminal-bell notifications. Or run headless with -p, --agent, --file, and --format json.',
             },
             {
                 title: 'Sessions & control',
                 description:
-                    'Session resume, checkpoint + /rewind, automatic context compaction, hooks, skills with progressive disclosure, slash commands, and MCP servers.',
+                    'Session resume, list / delete and --fork, checkpoint + /rewind, /undo · /redo, automatic context compaction, hooks, skills with progressive disclosure, slash commands, MCP servers (stdio/http, per-server config + OAuth), and cross-session usage stats via stepper stats.',
+            },
+            {
+                title: 'Config & enterprise',
+                description:
+                    'JSONC setting.json with {env:} / {file:} substitution and STEPPER_CONFIG overrides, an explicit HTTP(S) proxy plus private-CA support for corporate networks, and OAuth for remote MCP servers.',
             },
         ],
     },
@@ -128,7 +133,7 @@ export const en = {
         updateLog: 'Update log',
         updateLogLead: 'Version-by-version changes to stepper, generated from the repository.',
         usageCard: { title: 'USAGE.md', body: 'Install, CLI reference, setting.json, providers, layers, permissions, MCP, and CI.' },
-        architectureCard: { title: 'ARCHITECTURE.md', body: 'The 10-crate workspace map, data flow, and isolation invariants.' },
+        architectureCard: { title: 'ARCHITECTURE.md', body: 'The 11-crate workspace map, data flow, and isolation invariants.' },
         cta: 'Browse all docs',
     },
     footer: {

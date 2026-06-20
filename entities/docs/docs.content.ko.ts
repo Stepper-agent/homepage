@@ -757,6 +757,85 @@ export const DOC_PAGES_KO: DocPage[] = [
                     ['`n` (승인 오버레이)', '동작 거부'],
                 ],
             },
+            {
+                kind: 'heading',
+                text: 'apply_patch 도구',
+            },
+            {
+                kind: 'paragraph',
+                text: '`apply_patch` 도구는 구조화된 다중 파일 패치(Add / Update / Delete / Move, `@@` 컨텍스트 헝크와 퍼지 매칭 지원)를 원자적으로 적용합니다. 모든 변경을 먼저 검증하며, 어느 한 헝크라도 실패하거나 게이트가 거부되면 아무것도 쓰지 않습니다.',
+            },
+            {
+                kind: 'heading',
+                text: '편집 시 포맷 & LSP',
+            },
+            {
+                kind: 'paragraph',
+                text: '선택형 편집 시 자동 포맷은 파일 편집 도구가 실행된 뒤 기본 제공 카탈로그(rustfmt, gofmt, prettier, ruff, biome, …)에서 일치하는 포매터를 실행합니다. 설치된 language server의 LSP 진단은 편집 후에 수집되어 도구 결과에 덧붙여집니다. 둘 다 기본은 꺼져 있으며 `setting.json`의 `formatter` / `lsp` 키로 활성화합니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"formatter": true,\n"lsp": true',
+            },
+            {
+                kind: 'heading',
+                text: '이름이 지정된 sub-agent',
+            },
+            {
+                kind: 'paragraph',
+                text: '재사용 가능한 sub-agent를 `.stepper/agents/<name>/index.md`(모델, 도구, 시스템 프롬프트)에 정의합니다. `task` 도구로 호출하거나, 프롬프트에서 `#<name>`으로 인라인 호출할 수 있습니다(타입어헤드 피커가 목록을 보여줍니다). 각 sub-agent는 새로운 컨텍스트를 가진 자체 sub-agent로 실행되며, Task 권한 규칙으로 게이팅됩니다.',
+            },
+            {
+                kind: 'heading',
+                text: 'Undo / Redo',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/undo`는 마지막 턴을 되돌립니다 — 작업 트리를 그 턴 직전의 체크포인트로 복원하고 해당 턴을 제거합니다 — 그리고 먼저 스냅샷을 떠 두어 `/redo`로 다시 적용할 수 있게 합니다(둘 다 멀티 스텝). 새 턴을 시작하면(또는 `/rewind`, `/resume`, `/clear`, `/compact`) 타임라인이 분기되고 redo 스택이 무효화됩니다.',
+            },
+            {
+                kind: 'heading',
+                text: '알림',
+            },
+            {
+                kind: 'paragraph',
+                text: '`setting.json`에 `notification`을 설정하면 턴이 완료되거나, 승인 대기 중이거나, 턴에서 오류가 났을 때 터미널 벨이 울립니다 — 세 가지 모두에 대해 `true`로 켜거나, 객체로 트리거를 골라 지정할 수 있습니다. 기본은 꺼져 있으며, 이식성 있는 터미널 벨만 사용합니다(OS 알림 없음).',
+            },
+            {
+                kind: 'heading',
+                text: '프록시 & 사설 CA',
+            },
+            {
+                kind: 'paragraph',
+                text: '아웃바운드 HTTP는 표준 `HTTP(S)_PROXY` / `NO_PROXY` 환경 변수를 따릅니다. 환경 변수가 없는 환경에서는 `setting.json`에 프록시를 명시적으로 설정합니다(`http` / `https` / `all` / `noProxy` / `disabled`). 기업용 / 자체 서명 루트는 `STEPPER_EXTRA_CA_CERTS`(PEM 번들, 시스템 신뢰에 추가되며 fail-open)로 추가합니다. provider 호출, `web_fetch`, http MCP에 적용됩니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"proxy": { "https": "http://proxy.corp:3128", "noProxy": "localhost" }',
+            },
+            {
+                kind: 'heading',
+                text: 'MCP 서버 OAuth',
+            },
+            {
+                kind: 'paragraph',
+                text: 'OAuth가 필요한 원격(http) MCP 서버는 `stepper mcp auth <name>`(브라우저 플로, PKCE, 동적 클라이언트 등록)으로 인증합니다. 토큰은 `~/.stepper/mcp-auth.json`(0600)에 저장되며 자동으로 갱신됩니다. `stepper mcp logout` / `status`로 관리합니다. `mcpServers`에서 서버별로 `oauth` 키로 활성화합니다.',
+            },
+            {
+                kind: 'heading',
+                text: '세션 간 통계',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper stats`는 저장된 모든 세션에 걸쳐 토큰, 비용, 턴, 모델별·도구별 사용량을 집계합니다. `--days`로 필터링하고, `--models` / `--tools`로 분해하며, `--json`으로 JSON을 출력하거나 `--export`(.csv 또는 .json)로 파일에 기록합니다. 사용량은 앞으로 턴마다 기록됩니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper stats --models --tools\nstepper stats --days 7 --json',
+            },
         ],
     },
     {

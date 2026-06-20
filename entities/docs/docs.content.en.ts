@@ -763,6 +763,85 @@ export const DOC_PAGES_EN: DocPage[] = [
                     ['`n` (approval overlay)', 'Deny the action'],
                 ],
             },
+            {
+                kind: 'heading',
+                text: 'apply_patch tool',
+            },
+            {
+                kind: 'paragraph',
+                text: 'The apply_patch tool applies a structured multi-file patch (Add / Update / Delete / Move, with @@ context hunks and fuzzy matching) atomically — it validates every change first and writes nothing if any hunk fails or a gate is denied.',
+            },
+            {
+                kind: 'heading',
+                text: 'Format & LSP on edit',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Opt-in format-on-edit runs the matching formatter from a built-in catalog (rustfmt, gofmt, prettier, ruff, biome, …) after a file-editing tool; LSP diagnostics from installed language servers are collected after the edit and appended to the tool result. Both are off by default and enabled via the formatter / lsp keys in setting.json.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"formatter": true,\n"lsp": true',
+            },
+            {
+                kind: 'heading',
+                text: 'Named sub-agents',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Define reusable sub-agents in `.stepper/agents/<name>/index.md` (model, tools, system prompt). Invoke one with the task tool, or inline from the prompt with `#<name>` (a type-ahead picker lists them). Each runs as its own sub-agent with a fresh context, gated by a Task permission rule.',
+            },
+            {
+                kind: 'heading',
+                text: 'Undo / redo',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/undo` reverts the last turn — restoring the working tree to the checkpoint just before it and dropping that turn — and snapshots first so `/redo` can re-apply it (both multi-step). Starting a new turn (or `/rewind`, `/resume`, `/clear`, `/compact`) forks the timeline and invalidates the redo stack.',
+            },
+            {
+                kind: 'heading',
+                text: 'Notifications',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Set `notification` in setting.json to ring the terminal bell when a turn completes, an approval is awaited, or a turn errors — `true` for all three, or an object to pick triggers. Off by default; a portable terminal bell only (no OS notifications).',
+            },
+            {
+                kind: 'heading',
+                text: 'Proxy & private CA',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Outbound HTTP honors the standard `HTTP(S)_PROXY` / `NO_PROXY` env vars; for env-less setups set an explicit proxy in setting.json (http / https / all / noProxy / disabled). Add a corporate / self-signed root via `STEPPER_EXTRA_CA_CERTS` (a PEM bundle, additive to system trust, fail-open). Applies to provider calls, web_fetch, and http MCP.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"proxy": { "https": "http://proxy.corp:3128", "noProxy": "localhost" }',
+            },
+            {
+                kind: 'heading',
+                text: 'MCP server OAuth',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Remote (http) MCP servers that require OAuth are authorized with `stepper mcp auth <name>` (browser flow, PKCE, dynamic client registration); tokens live in `~/.stepper/mcp-auth.json` (0600) and refresh automatically. `stepper mcp logout` / `status` manage them. Enable per server with an `oauth` key in `mcpServers`.',
+            },
+            {
+                kind: 'heading',
+                text: 'Cross-session stats',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper stats` aggregates token, cost, turn, per-model and per-tool usage across every saved session. Filter with `--days`, break down with `--models` / `--tools`, emit JSON with `--json`, or write a file with `--export` (.csv or .json). Usage is recorded per turn going forward.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper stats --models --tools\nstepper stats --days 7 --json',
+            },
         ],
     },
     {

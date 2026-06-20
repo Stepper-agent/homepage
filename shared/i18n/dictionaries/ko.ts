@@ -56,12 +56,17 @@ export const ko: Dictionary = {
             {
                 title: '레이어 파이프라인',
                 description:
-                    '각 step은 자신만의 모델·도구·시스템 프롬프트를 가진 독립 sub-agent입니다. 기본은 순차 실행이며, 레이어에 parallel: true를 지정하면 서브태스크마다 워커 하나로 fan-out 합니다.',
+                    '각 step은 자신만의 모델·도구·시스템 프롬프트를 가진 독립 sub-agent입니다. 기본은 순차 실행이며, 레이어에 parallel: true를 지정하면 서브태스크마다 워커 하나로 fan-out 합니다. #agent나 task 도구로 이름이 지정된 sub-agent를 인라인으로 디스패치할 수 있습니다.',
             },
             {
                 title: '멀티 프로바이더',
                 description:
-                    'Anthropic, OpenAI, ollama-cloud, oMLX(로컬 Apple Silicon MLX), Codex(ChatGPT OAuth). /connect로 models.dev 카탈로그에서 아무 provider나 검색·추가할 수 있고, 모든 레이어가 자신의 provider와 모델을 고릅니다.',
+                    'Anthropic, OpenAI, ollama-cloud, oMLX(로컬 Apple Silicon MLX), Codex(ChatGPT OAuth). /connect로 models.dev 카탈로그에서 아무 provider나 검색·추가할 수 있고(지원하지 않는 항목은 비활성으로 표시되어 키가 잘못 라우팅되지 않습니다), 모든 레이어가 자신의 provider와 모델을 고르며 모델별 컨텍스트·가격 재정의도 선택적으로 적용할 수 있습니다.',
+            },
+            {
+                title: '편집 & 코드 인텔리전스',
+                description:
+                    '전체 파일 도구에 더해 다중 파일 구조화 편집을 위한 apply_patch, 기본 제공 포매터 카탈로그를 사용하는 선택형 편집 시 자동 포맷, 그리고 설치된 language server에서 나온 LSP 진단을 매 편집 후 에이전트에게 다시 전달합니다.',
             },
             {
                 title: '권한 시스템',
@@ -69,19 +74,19 @@ export const ko: Dictionary = {
                     '모드(auto / plan / accept-edits)에 더해 allow / ask / deny 규칙과 영속 approvals. 헤드리스 -p는 기본 deny — fail-closed입니다.',
             },
             {
-                title: '가이드 온보딩',
-                description:
-                    '.stepper/ 가 없는 첫 실행에서 모델과 권한 모드를 고르도록 안내하고 setting.json을 작성합니다. --no-init으로 건너뜁니다.',
-            },
-            {
                 title: 'TUI',
                 description:
-                    'ratatui 터미널 UI: 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용), diff 승인 오버레이, /theme 색상 편집기, 입력으로 거르는 /models 피커, /effort 추론 강도 조절. 또는 -p로 헤드리스 실행.',
+                    'ratatui 터미널 UI: 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용), diff 승인 오버레이, 13개 기본 팔레트를 갖춘 /theme 편집기, 입력으로 거르는 /models 피커, /connect, /effort 추론 강도 조절, /undo · /redo, 그리고 선택형 터미널 벨 알림. 또는 -p, --agent, --file, --format json으로 헤드리스 실행.',
             },
             {
                 title: '세션 & 제어',
                 description:
-                    '세션 resume, checkpoint + /rewind, 자동 컨텍스트 압축, hooks, progressive disclosure 방식의 skills, 슬래시 커맨드, MCP 서버.',
+                    '세션 resume, list / delete 및 --fork, checkpoint + /rewind, /undo · /redo, 자동 컨텍스트 압축, hooks, progressive disclosure 방식의 skills, 슬래시 커맨드, MCP 서버(stdio/http, 서버별 설정 + OAuth), 그리고 stepper stats를 통한 세션 간 사용량 통계.',
+            },
+            {
+                title: '설정 & 엔터프라이즈',
+                description:
+                    '{env:} / {file:} 치환과 STEPPER_CONFIG 재정의를 지원하는 JSONC setting.json, 기업 네트워크를 위한 명시적 HTTP(S) 프록시와 사설 CA 지원, 그리고 원격 MCP 서버를 위한 OAuth.',
             },
         ],
     },
@@ -130,7 +135,7 @@ export const ko: Dictionary = {
         updateLog: '업데이트 로그',
         updateLogLead: '저장소에서 생성된 stepper의 버전별 변경 사항입니다.',
         usageCard: { title: 'USAGE.md', body: '설치, CLI 레퍼런스, setting.json, providers, 레이어, 권한, MCP, CI.' },
-        architectureCard: { title: 'ARCHITECTURE.md', body: '10개 크레이트 워크스페이스 맵, 데이터 흐름, 격리 불변식.' },
+        architectureCard: { title: 'ARCHITECTURE.md', body: '11개 크레이트 워크스페이스 맵, 데이터 흐름, 격리 불변식.' },
         cta: '전체 문서 보기',
     },
     footer: {
