@@ -456,7 +456,7 @@ export const DOC_PAGES_EN: DocPage[] = [
             {
                 kind: 'list',
                 items: [
-                    '`auto` — in-project actions run; out-of-project writes prompt.',
+                    '`auto` — the default mode. Read-only tools run without a prompt anywhere, in-project edits auto-apply, and only out-of-project writes ask.',
                     '`plan` — read-only; edits are blocked.',
                     '`accept-edits` — in-project edits auto-accepted; outside reads prompt.',
                 ],
@@ -706,15 +706,20 @@ export const DOC_PAGES_EN: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: 'Configure lifecycle hooks to run shell commands at key points in a session. Hooks are defined in `.stepper/setting.json` under the `hooks` key. Non-zero exit codes block the corresponding operation (e.g., `PreToolUse`).',
+                text: 'Configure lifecycle hooks to run shell commands at key points in a session. Hooks are defined in `.stepper/setting.json` under the `hooks` key, keyed by event, and the matched payload is fed on stdin as JSON. Non-zero exit codes block the corresponding operation (e.g., `PreToolUse`). The lifecycle covers nine events:',
             },
             {
                 kind: 'list',
                 items: [
                     '`SessionStart` — runs when a session begins',
-                    '`SessionStop` — runs when a session ends',
+                    '`UserPromptSubmit` — runs when you submit a prompt',
                     '`PreToolUse` — runs before a tool is called; non-zero exit blocks the tool',
                     '`PostToolUse` — runs after a tool completes',
+                    '`PreCompact` — runs before history is folded',
+                    '`SubagentStop` — runs when a fan-out or dispatched sub-agent finishes',
+                    '`Notification` — runs on a notification event',
+                    '`Stop` — runs when a turn stops',
+                    '`SessionEnd` — runs when a session ends',
                 ],
             },
             {
@@ -755,6 +760,7 @@ export const DOC_PAGES_EN: DocPage[] = [
                     ['`Shift+Tab`', 'Cycle permission mode (`auto` → `plan` → `accept-edits` → `auto`)'],
                     ['`Esc`', 'Interrupt the current turn (abort stream and in-flight tools)'],
                     ['`Ctrl+C`', 'Quit the TUI'],
+                    ['`Ctrl+E`', 'Compose the prompt in your external editor'],
                     ['`!cmd`', 'Run a shell command'],
                     ['`@`', 'Open file picker'],
                     ['`/`', 'Open command palette'],
@@ -835,12 +841,91 @@ export const DOC_PAGES_EN: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: '`stepper stats` aggregates token, cost, turn, per-model and per-tool usage across every saved session. Filter with `--days`, break down with `--models` / `--tools`, emit JSON with `--json`, or write a file with `--export` (.csv or .json). Usage is recorded per turn going forward.',
+                text: '`stepper stats` aggregates token, cost, turn, per-model and per-tool usage across every saved session. Filter with `--days`, break down with `--models` / `--tools`, emit JSON with `--json`, or write a file with `--export` (.csv or .json). The by-tool breakdown renders a bar chart with normalized bars and percentages so the heaviest tools stand out at a glance. Usage is recorded per turn going forward.',
             },
             {
                 kind: 'code',
                 lang: 'sh',
                 code: 'stepper stats --models --tools\nstepper stats --days 7 --json',
+            },
+            {
+                kind: 'heading',
+                text: 'Auto memory',
+            },
+            {
+                kind: 'paragraph',
+                text: 'The agent can call the `memory_write` tool to append a durable learning — build/test commands, conventions, debugging insights — to `.stepper/memory/MEMORY.md`. That file is loaded into the base context (its most-recent ~32 KB) at the start of every future session, so learnings carry across sessions without any manual bookkeeping.',
+            },
+            {
+                kind: 'heading',
+                text: 'Reasoning effort',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Set the reasoning effort for the session with `/effort` or the `--effort` flag (`off` / `low` / `medium` / `high` / `xhigh` / `max`); the no-arg `/effort` opens a picker highlighting the current level, and the footer shows it. Modern Claude (Opus ≥ 4.6 / Sonnet ≥ 4.6 / Fable·Mythos 5) maps it to adaptive thinking plus `output_config.effort`; OpenAI maps it to `reasoning_effort` (`xhigh` / `max` clamp to `high`); older Claude keeps a legacy thinking-budget tier.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper --effort xhigh\n# or in the TUI:  /effort max',
+            },
+            {
+                kind: 'heading',
+                text: 'External editor',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Run `/editor` (or press `Ctrl+E`) to compose your prompt in your own editor — stepper opens `$VISUAL` / `$EDITOR` on a temp file and loads what you save back into the input. Handy for long, multi-paragraph prompts that are awkward to type inline.',
+            },
+            {
+                kind: 'heading',
+                text: 'Settings overview',
+            },
+            {
+                kind: 'paragraph',
+                text: "`/settings` opens a consolidated, tabbed overview — General · Model · Permissions · Theme · MCP · Notifications. Switch tabs with `←` / `→` (or `Tab`), press `Enter` to jump straight into the focused tab's editor (`/permissions`, `/theme`, `/model`), and `Esc` to close.",
+            },
+            {
+                kind: 'heading',
+                text: 'MCP management CLI',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Manage MCP servers from the command line without hand-editing `setting.json`: `stepper mcp list` shows the configured servers, `stepper mcp get <name>` connects to a server and lists its tools / resources / prompts, `stepper mcp add <name>` registers a stdio or http server, and `stepper mcp remove <name>` deletes one.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper mcp list\nstepper mcp get context7\nstepper mcp add my-tool --command my-mcp --arg --stdio',
+            },
+            {
+                kind: 'heading',
+                text: 'Models CLI',
+            },
+            {
+                kind: 'paragraph',
+                text: "`stepper models [provider]` lists the selectable models (each provider's live list merged with the models.dev catalog) headlessly — plain text by default, `--json` for scripting, or `--verbose` for per-model context window and pricing.",
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper models\nstepper models anthropic --verbose\nstepper models --json',
+            },
+            {
+                kind: 'heading',
+                text: 'Headless system prompt overrides',
+            },
+            {
+                kind: 'paragraph',
+                text: "For wrapping stepper as a headless linter or reviewer, `--system-prompt` / `--system-prompt-file` replace the project base context for the run (reaching dispatched sub-agents too), and `--append-system-prompt` / `--append-system-prompt-file` append extra instructions to every layer's system message after its role.",
+            },
+            {
+                kind: 'heading',
+                text: 'File logging',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Logging is opt-in: pass `--log-level` to write to `~/.stepper/logs/stepper.log` (a `RUST_LOG` env var takes priority when set). Useful for debugging a headless run or a misbehaving provider without cluttering the TUI.',
             },
         ],
     },
@@ -1101,7 +1186,7 @@ export const DOC_PAGES_EN: DocPage[] = [
                     '**Auth** — provider keys via env vars or the OS keyring (`stepper auth set-key` / `delete-key`), plus Codex (ChatGPT) OAuth.',
                     '**Sessions & control** — session resume, checkpoint + `/rewind`, model-driven compaction, hooks, skills (progressive disclosure), slash commands, and MCP (stdio/HTTP) servers.',
                     "**Opt-in OS sandbox** — a macOS Seatbelt profile confines the `bash` tool's writes to the project (defense-in-depth under the permission engine).",
-                     '**Test hardening** — isolation-invariant CI, core integration tests (orchestrator, compaction, session/rewind, cost, parallel layer, dispatch, cancellation), the permission matrix, TUI render snapshots, hermetic MCP echo, and provider fixtures — 837 network-less tests.',
+                    '**Test hardening** — isolation-invariant CI, core integration tests (orchestrator, compaction, session/rewind, cost, parallel layer, dispatch, cancellation), the permission matrix, TUI render snapshots, hermetic MCP echo, and provider fixtures — 837 network-less tests.',
                     '**Live end-to-end** — the two-layer pipeline (ollama-cloud → oMLX), streaming, `/rewind`, and resume are validated against real providers (kept `#[ignore]` + `STEPPER_E2E`-gated so the default `cargo test` skips them).',
                 ],
             },

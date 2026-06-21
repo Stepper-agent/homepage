@@ -69,22 +69,22 @@ export const en = {
             {
                 title: 'Permission system',
                 description:
-                    'Modes (auto / plan / accept-edits) plus allow / ask / deny rules and persisted approvals. Headless -p is deny-by-default — fail-closed.',
+                    'auto (the default) runs read-only tools without a prompt anywhere and auto-applies in-project edits, asking only on out-of-project writes; plan and accept-edits round out the modes, on top of allow / ask / deny rules and persisted approvals. Headless -p is deny-by-default — fail-closed.',
             },
             {
                 title: 'TUI',
                 description:
-                    'A ratatui terminal UI: live markdown, a status footer (active layer · model · tokens · ctx% gauge · cost), a diff-approval overlay, a /theme editor with 13 built-in palettes, a type-to-filter /models picker, /connect, /effort reasoning control, /undo · /redo, and optional terminal-bell notifications. Or run headless with -p, --agent, --file, and --format json.',
+                    'A ratatui terminal UI: live markdown on a per-theme coloured panel, a status footer (active layer · model · tokens · ctx% gauge · cost · effort), a diff-approval overlay, a /settings tabbed overview, a /theme editor with 13 built-in palettes, a type-to-filter /models picker, /connect, /effort reasoning control, /editor (Ctrl+E), /undo · /redo, and optional terminal-bell notifications. Or run headless with -p, --agent, --file, and --format json.',
             },
             {
                 title: 'Sessions & control',
                 description:
-                    'Session resume, list / delete and --fork, checkpoint + /rewind, /undo · /redo, automatic context compaction, hooks, skills with progressive disclosure, slash commands, MCP servers (stdio/http, per-server config + OAuth), and cross-session usage stats via stepper stats.',
+                    'Session resume, list / delete and --fork, checkpoint + /rewind, /undo · /redo, automatic context compaction, auto memory that carries learnings across sessions, nine lifecycle hooks, adjustable reasoning effort, skills with progressive disclosure, slash commands, MCP servers (stdio/http, per-server config + OAuth), and cross-session usage stats via stepper stats.',
             },
             {
                 title: 'Config & enterprise',
                 description:
-                    'JSONC setting.json with {env:} / {file:} substitution and STEPPER_CONFIG overrides, an explicit HTTP(S) proxy plus private-CA support for corporate networks, and OAuth for remote MCP servers.',
+                    'JSONC setting.json with {env:} / {file:} substitution and STEPPER_CONFIG overrides, headless system-prompt overrides, a stepper mcp management CLI (list / get / add / remove), an explicit HTTP(S) proxy plus private-CA support for corporate networks, and OAuth for remote MCP servers.',
             },
         ],
     },

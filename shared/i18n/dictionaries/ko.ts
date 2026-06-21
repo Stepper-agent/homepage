@@ -71,22 +71,22 @@ export const ko: Dictionary = {
             {
                 title: '권한 시스템',
                 description:
-                    '모드(auto / plan / accept-edits)에 더해 allow / ask / deny 규칙과 영속 approvals. 헤드리스 -p는 기본 deny — fail-closed입니다.',
+                    '기본 모드인 auto는 읽기 전용 도구를 어디서나 확인 없이 실행하고, 프로젝트 내 편집을 자동 적용하며, 프로젝트 외부 쓰기만 확인합니다. plan과 accept-edits가 모드를 보완하고, 그 위에 allow / ask / deny 규칙과 영속 approvals가 얹힙니다. 헤드리스 -p는 기본 deny — fail-closed입니다.',
             },
             {
                 title: 'TUI',
                 description:
-                    'ratatui 터미널 UI: 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용), diff 승인 오버레이, 13개 기본 팔레트를 갖춘 /theme 편집기, 입력으로 거르는 /models 피커, /connect, /effort 추론 강도 조절, /undo · /redo, 그리고 선택형 터미널 벨 알림. 또는 -p, --agent, --file, --format json으로 헤드리스 실행.',
+                    'ratatui 터미널 UI: 테마별로 채색된 패널 위의 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용 · effort), diff 승인 오버레이, /settings 탭형 개요, 13개 기본 팔레트를 갖춘 /theme 편집기, 입력으로 거르는 /models 피커, /connect, /effort 추론 강도 조절, /editor(Ctrl+E), /undo · /redo, 그리고 선택형 터미널 벨 알림. 또는 -p, --agent, --file, --format json으로 헤드리스 실행.',
             },
             {
                 title: '세션 & 제어',
                 description:
-                    '세션 resume, list / delete 및 --fork, checkpoint + /rewind, /undo · /redo, 자동 컨텍스트 압축, hooks, progressive disclosure 방식의 skills, 슬래시 커맨드, MCP 서버(stdio/http, 서버별 설정 + OAuth), 그리고 stepper stats를 통한 세션 간 사용량 통계.',
+                    '세션 resume, list / delete 및 --fork, checkpoint + /rewind, /undo · /redo, 자동 컨텍스트 압축, 학습 내용을 세션 간에 이어주는 자동 메모리, 9가지 라이프사이클 hooks, 조절 가능한 추론 강도, progressive disclosure 방식의 skills, 슬래시 커맨드, MCP 서버(stdio/http, 서버별 설정 + OAuth), 그리고 stepper stats를 통한 세션 간 사용량 통계.',
             },
             {
                 title: '설정 & 엔터프라이즈',
                 description:
-                    '{env:} / {file:} 치환과 STEPPER_CONFIG 재정의를 지원하는 JSONC setting.json, 기업 네트워크를 위한 명시적 HTTP(S) 프록시와 사설 CA 지원, 그리고 원격 MCP 서버를 위한 OAuth.',
+                    '{env:} / {file:} 치환과 STEPPER_CONFIG 재정의를 지원하는 JSONC setting.json, 헤드리스 시스템 프롬프트 재정의, stepper mcp 관리 CLI(list / get / add / remove), 기업 네트워크를 위한 명시적 HTTP(S) 프록시와 사설 CA 지원, 그리고 원격 MCP 서버를 위한 OAuth.',
             },
         ],
     },

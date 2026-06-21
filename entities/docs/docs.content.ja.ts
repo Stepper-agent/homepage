@@ -456,7 +456,7 @@ export const DOC_PAGES_JA: DocPage[] = [
             {
                 kind: 'list',
                 items: [
-                    '`auto` — プロジェクト内のアクションは実行され、プロジェクト外への書き込みは確認を求めます。',
+                    '`auto` — デフォルトのモード。読み取り専用ツールはどこでも確認なしに実行され、プロジェクト内の編集は自動適用され、プロジェクト外への書き込みだけが確認を求めます。',
                     '`plan` — 読み取り専用で、編集はブロックされます。',
                     '`accept-edits` — プロジェクト内の編集は自動的に受け入れられ、外部の読み取りは確認を求めます。',
                 ],
@@ -706,15 +706,20 @@ export const DOC_PAGES_JA: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: 'ライフサイクルフックを設定して、セッションの重要なタイミングでシェルコマンドを実行できます。フックは `.stepper/setting.json` の `hooks` キーの下に定義します。終了コードが 0 以外の場合、対応する操作がブロックされます（例：`PreToolUse`）。',
+                text: 'ライフサイクルフックを設定して、セッションの重要なタイミングでシェルコマンドを実行できます。フックは `.stepper/setting.json` の `hooks` キーの下にイベント単位で定義し、一致したペイロードが JSON として stdin に渡されます。終了コードが 0 以外の場合、対応する操作がブロックされます（例：`PreToolUse`）。ライフサイクルは 9 つのイベントを対象とします:',
             },
             {
                 kind: 'list',
                 items: [
                     '`SessionStart` — セッションの開始時に実行されます',
-                    '`SessionStop` — セッションの終了時に実行されます',
+                    '`UserPromptSubmit` — プロンプトを送信したときに実行されます',
                     '`PreToolUse` — ツールが呼び出される前に実行され、0 以外の終了コードはツールをブロックします',
                     '`PostToolUse` — ツールの完了後に実行されます',
+                    '`PreCompact` — 履歴が畳み込まれる前に実行されます',
+                    '`SubagentStop` — fan-out または dispatch されたサブエージェントの完了時に実行されます',
+                    '`Notification` — 通知イベント時に実行されます',
+                    '`Stop` — ターンが停止したときに実行されます',
+                    '`SessionEnd` — セッションの終了時に実行されます',
                 ],
             },
             {
@@ -755,6 +760,7 @@ export const DOC_PAGES_JA: DocPage[] = [
                     ['`Shift+Tab`', '権限モードを切り替え（`auto` → `plan` → `accept-edits` → `auto`）'],
                     ['`Esc`', '現在のターンをインタラプト（ストリームと処理中のツールを中断）'],
                     ['`Ctrl+C`', 'TUI を終了'],
+                    ['`Ctrl+E`', '外部エディターでプロンプトを編集'],
                     ['`!cmd`', 'シェルコマンドを実行'],
                     ['`@`', 'ファイルピッカーを開く'],
                     ['`/`', 'コマンドパレットを開く'],
@@ -835,12 +841,91 @@ export const DOC_PAGES_JA: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: '`stepper stats` は、保存されたすべてのセッションにわたってトークン、コスト、ターン、モデルごと・ツールごとの利用状況を集計します。`--days` で絞り込み、`--models` / `--tools` で内訳を表示し、`--json` で JSON を出力し、`--export`（.csv または .json）でファイルに書き出します。利用状況は今後ターンごとに記録されます。',
+                text: '`stepper stats` は、保存されたすべてのセッションにわたってトークン、コスト、ターン、モデルごと・ツールごとの利用状況を集計します。`--days` で絞り込み、`--models` / `--tools` で内訳を表示し、`--json` で JSON を出力し、`--export`（.csv または .json）でファイルに書き出します。ツールごとの内訳は、正規化されたバーと割合を伴う棒グラフで描画されるため、最も負荷の高いツールが一目で分かります。利用状況は今後ターンごとに記録されます。',
             },
             {
                 kind: 'code',
                 lang: 'bash',
                 code: 'stepper stats --models --tools\nstepper stats --days 7 --json',
+            },
+            {
+                kind: 'heading',
+                text: '自動メモリ',
+            },
+            {
+                kind: 'paragraph',
+                text: 'エージェントは `memory_write` ツールを呼び出して、永続的な学び — ビルド / テストコマンド、規約、デバッグの知見 — を `.stepper/memory/MEMORY.md` に追記できます。このファイルは以降のすべてのセッションの開始時にベースコンテキストへ読み込まれ（直近の約 32 KB）、学びが手作業なしにセッションをまたいで引き継がれます。',
+            },
+            {
+                kind: 'heading',
+                text: '推論強度',
+            },
+            {
+                kind: 'paragraph',
+                text: 'セッションの推論強度は `/effort` または `--effort` フラグ（`off` / `low` / `medium` / `high` / `xhigh` / `max`）で設定します。引数なしの `/effort` は現在のレベルを強調したピッカーを開き、フッターに現在値が表示されます。最新の Claude（Opus ≥ 4.6 / Sonnet ≥ 4.6 / Fable·Mythos 5）ではアダプティブ思考と `output_config.effort` にマップされ、OpenAI では `reasoning_effort`（`xhigh` / `max` は `high` にクランプ）に、旧来の Claude ではレガシーな思考バジェット段階にマップされます。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper --effort xhigh\n# または TUI 内で:  /effort max',
+            },
+            {
+                kind: 'heading',
+                text: '外部エディター',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/editor` を実行（または `Ctrl+E` を押す）すると、プロンプトを自分のエディターで作成できます — stepper が一時ファイルで `$VISUAL` / `$EDITOR` を開き、保存した内容を入力欄に読み込みます。インラインでは入力しづらい、長く複数段落にわたるプロンプトに便利です。',
+            },
+            {
+                kind: 'heading',
+                text: '設定の概要',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/settings` は統合されたタブ表示の概要を開きます — General · Model · Permissions · Theme · MCP · Notifications。`←` / `→`（または `Tab`）でタブを切り替え、`Enter` でフォーカス中タブのエディター（`/permissions`、`/theme`、`/model`）に直接ジャンプし、`Esc` で閉じます。',
+            },
+            {
+                kind: 'heading',
+                text: 'MCP 管理 CLI',
+            },
+            {
+                kind: 'paragraph',
+                text: '`setting.json` を手で編集することなく、コマンドラインから MCP サーバーを管理できます: `stepper mcp list` は設定済みサーバーを一覧表示し、`stepper mcp get <name>` はサーバーに接続してそのツール / リソース / プロンプトを一覧表示し、`stepper mcp add <name>` は stdio または http サーバーを登録し、`stepper mcp remove <name>` は削除します。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper mcp list\nstepper mcp get context7\nstepper mcp add my-tool --command my-mcp --arg --stdio',
+            },
+            {
+                kind: 'heading',
+                text: 'モデル CLI',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper models [provider]` は、選択可能なモデル（各プロバイダーのライブ一覧と models.dev カタログをマージしたもの）をヘッドレスで一覧表示します — デフォルトはプレーンテキスト、スクリプト用には `--json`、モデルごとのコンテキストウィンドウと価格には `--verbose`。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper models\nstepper models anthropic --verbose\nstepper models --json',
+            },
+            {
+                kind: 'heading',
+                text: 'ヘッドレスのシステムプロンプトオーバーライド',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper をヘッドレスのリンターやレビュアーとしてラップするために、`--system-prompt` / `--system-prompt-file` は実行中のプロジェクトベースコンテキストを置き換え（dispatch されたサブエージェントにも及びます）、`--append-system-prompt` / `--append-system-prompt-file` は各レイヤーのシステムメッセージの役割の後に追加の指示を付け足します。',
+            },
+            {
+                kind: 'heading',
+                text: 'ファイルログ',
+            },
+            {
+                kind: 'paragraph',
+                text: 'ログはオプトインです: `--log-level` を渡すと `~/.stepper/logs/stepper.log` に書き込みます（`RUST_LOG` 環境変数が設定されている場合はそちらが優先されます）。TUI を散らかさずに、ヘッドレス実行や挙動のおかしいプロバイダーをデバッグするのに便利です。',
             },
         ],
     },
@@ -1104,7 +1189,7 @@ export const DOC_PAGES_JA: DocPage[] = [
                     '**認証** — 環境変数または OS キーリング(`stepper auth set-key` / `delete-key`)によるプロバイダーキー、および Codex(ChatGPT)OAuth。',
                     '**セッション & 制御** — セッション再開、チェックポイント + `/rewind`、モデル駆動のコンパクション、フック、スキル(段階的開示)、スラッシュコマンド、MCP(stdio/HTTP)サーバー。',
                     '**オプトインの OS サンドボックス** — macOS Seatbelt プロファイルが `bash` ツールの書き込みをプロジェクトに限定します(権限エンジンの下での多層防御)。',
-                     '**テスト強化** — 分離不変条件の CI、core 統合テスト(オーケストレーター、コンパクション、セッション/巻き戻し、コスト、並列レイヤー、dispatch、キャンセル)、権限マトリクス、TUI レンダースナップショット、密閉型 MCP エコー、プロバイダーフィクスチャ — 837 のネットワーク非依存テスト。',
+                    '**テスト強化** — 分離不変条件の CI、core 統合テスト(オーケストレーター、コンパクション、セッション/巻き戻し、コスト、並列レイヤー、dispatch、キャンセル)、権限マトリクス、TUI レンダースナップショット、密閉型 MCP エコー、プロバイダーフィクスチャ — 837 のネットワーク非依存テスト。',
                     '**ライブのエンドツーエンド** — 2 レイヤーパイプライン(ollama-cloud → oMLX)、ストリーミング、`/rewind`、再開が実際のプロバイダーに対して検証済みです(`#[ignore]` + `STEPPER_E2E` ゲーティングで維持され、デフォルトの `cargo test` はスキップします)。',
                 ],
             },

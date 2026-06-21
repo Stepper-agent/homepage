@@ -451,7 +451,7 @@ export const DOC_PAGES_KO: DocPage[] = [
             {
                 kind: 'list',
                 items: [
-                    '`auto` — 프로젝트 내 작업은 실행되고, 프로젝트 외부 쓰기는 확인을 요청합니다.',
+                    '`auto` — 기본 모드. 읽기 전용 도구는 어디서나 확인 없이 실행되고, 프로젝트 내 편집은 자동 적용되며, 프로젝트 외부 쓰기만 확인을 요청합니다.',
                     '`plan` — 읽기 전용이며, 편집은 차단됩니다.',
                     '`accept-edits` — 프로젝트 내 편집은 자동으로 수락되고, 외부 읽기는 확인을 요청합니다.',
                 ],
@@ -700,15 +700,20 @@ export const DOC_PAGES_KO: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: '세션의 주요 시점에서 셸 명령을 실행하도록 라이프사이클 훅을 설정할 수 있습니다. 훅은 `.stepper/setting.json`의 `hooks` 키 아래에 정의합니다. 종료 코드가 0이 아니면 해당 작업이 차단됩니다(예: `PreToolUse`).',
+                text: '세션의 주요 시점에서 셸 명령을 실행하도록 라이프사이클 훅을 설정할 수 있습니다. 훅은 `.stepper/setting.json`의 `hooks` 키 아래에 이벤트별로 정의하며, 일치한 페이로드가 JSON으로 stdin에 전달됩니다. 종료 코드가 0이 아니면 해당 작업이 차단됩니다(예: `PreToolUse`). 라이프사이클은 9가지 이벤트를 다룹니다:',
             },
             {
                 kind: 'list',
                 items: [
                     '`SessionStart` — 세션이 시작될 때 실행됩니다',
-                    '`SessionStop` — 세션이 종료될 때 실행됩니다',
+                    '`UserPromptSubmit` — 프롬프트를 제출할 때 실행됩니다',
                     '`PreToolUse` — 도구가 호출되기 전에 실행되며, 0이 아닌 종료 코드는 도구를 차단합니다',
                     '`PostToolUse` — 도구가 완료된 후에 실행됩니다',
+                    '`PreCompact` — 기록이 접히기 전에 실행됩니다',
+                    '`SubagentStop` — fan-out 또는 dispatch된 sub-agent가 끝날 때 실행됩니다',
+                    '`Notification` — 알림 이벤트 시 실행됩니다',
+                    '`Stop` — 턴이 멈출 때 실행됩니다',
+                    '`SessionEnd` — 세션이 종료될 때 실행됩니다',
                 ],
             },
             {
@@ -749,6 +754,7 @@ export const DOC_PAGES_KO: DocPage[] = [
                     ['`Shift+Tab`', '권한 모드 순환(`auto` → `plan` → `accept-edits` → `auto`)'],
                     ['`Esc`', '현재 턴 인터럽트(스트림과 진행 중인 도구 중단)'],
                     ['`Ctrl+C`', 'TUI 종료'],
+                    ['`Ctrl+E`', '외부 에디터에서 프롬프트 작성'],
                     ['`!cmd`', '셸 명령 실행'],
                     ['`@`', '파일 선택기 열기'],
                     ['`/`', '커맨드 팔레트 열기'],
@@ -829,12 +835,91 @@ export const DOC_PAGES_KO: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: '`stepper stats`는 저장된 모든 세션에 걸쳐 토큰, 비용, 턴, 모델별·도구별 사용량을 집계합니다. `--days`로 필터링하고, `--models` / `--tools`로 분해하며, `--json`으로 JSON을 출력하거나 `--export`(.csv 또는 .json)로 파일에 기록합니다. 사용량은 앞으로 턴마다 기록됩니다.',
+                text: '`stepper stats`는 저장된 모든 세션에 걸쳐 토큰, 비용, 턴, 모델별·도구별 사용량을 집계합니다. `--days`로 필터링하고, `--models` / `--tools`로 분해하며, `--json`으로 JSON을 출력하거나 `--export`(.csv 또는 .json)로 파일에 기록합니다. 도구별 분해는 정규화된 막대와 퍼센트를 곁들인 막대 차트로 그려져, 가장 많이 쓰인 도구가 한눈에 드러납니다. 사용량은 앞으로 턴마다 기록됩니다.',
             },
             {
                 kind: 'code',
                 lang: 'sh',
                 code: 'stepper stats --models --tools\nstepper stats --days 7 --json',
+            },
+            {
+                kind: 'heading',
+                text: '자동 메모리',
+            },
+            {
+                kind: 'paragraph',
+                text: '에이전트는 `memory_write` 도구를 호출해 지속적인 학습 내용 — 빌드 / 테스트 명령, 컨벤션, 디버깅 인사이트 — 을 `.stepper/memory/MEMORY.md`에 추가할 수 있습니다. 이 파일은 이후 모든 세션이 시작될 때 base 컨텍스트로 로드되어(가장 최근 약 32 KB), 학습 내용이 수작업 없이 세션을 넘나들며 이어집니다.',
+            },
+            {
+                kind: 'heading',
+                text: '추론 강도',
+            },
+            {
+                kind: 'paragraph',
+                text: '세션의 추론 강도는 `/effort` 또는 `--effort` 플래그(`off` / `low` / `medium` / `high` / `xhigh` / `max`)로 설정합니다. 인자 없는 `/effort`는 현재 레벨을 강조한 피커를 열고, 푸터에 현재 값이 표시됩니다. 최신 Claude(Opus ≥ 4.6 / Sonnet ≥ 4.6 / Fable·Mythos 5)는 적응형 사고와 `output_config.effort`로, OpenAI는 `reasoning_effort`(`xhigh` / `max`는 `high`로 클램프)로, 구형 Claude는 레거시 사고 예산 단계로 매핑됩니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper --effort xhigh\n# 또는 TUI 안에서:  /effort max',
+            },
+            {
+                kind: 'heading',
+                text: '외부 에디터',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/editor`를 실행(또는 `Ctrl+E`)하면 프롬프트를 자신의 에디터에서 작성할 수 있습니다 — stepper가 임시 파일로 `$VISUAL` / `$EDITOR`를 열고, 저장한 내용을 입력란으로 불러옵니다. 인라인으로 입력하기 번거로운 길고 여러 문단짜리 프롬프트에 유용합니다.',
+            },
+            {
+                kind: 'heading',
+                text: '설정 개요',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/settings`는 통합된 탭형 개요를 엽니다 — General · Model · Permissions · Theme · MCP · Notifications. `←` / `→`(또는 `Tab`)로 탭을 전환하고, `Enter`로 포커스된 탭의 편집기(`/permissions`, `/theme`, `/model`)로 바로 이동하며, `Esc`로 닫습니다.',
+            },
+            {
+                kind: 'heading',
+                text: 'MCP 관리 CLI',
+            },
+            {
+                kind: 'paragraph',
+                text: '`setting.json`을 직접 손대지 않고도 커맨드라인에서 MCP 서버를 관리할 수 있습니다: `stepper mcp list`는 설정된 서버를 보여주고, `stepper mcp get <name>`은 서버에 연결해 그 도구 / 리소스 / 프롬프트를 나열하며, `stepper mcp add <name>`은 stdio 또는 http 서버를 등록하고, `stepper mcp remove <name>`은 삭제합니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper mcp list\nstepper mcp get context7\nstepper mcp add my-tool --command my-mcp --arg --stdio',
+            },
+            {
+                kind: 'heading',
+                text: '모델 CLI',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper models [provider]`는 선택 가능한 모델(각 provider의 라이브 목록과 models.dev 카탈로그를 병합한 것)을 헤드리스로 나열합니다 — 기본은 일반 텍스트, 스크립트용으로는 `--json`, 모델별 컨텍스트 윈도우와 가격에는 `--verbose`.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper models\nstepper models anthropic --verbose\nstepper models --json',
+            },
+            {
+                kind: 'heading',
+                text: '헤드리스 시스템 프롬프트 재정의',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper를 헤드리스 린터나 리뷰어로 감쌀 때, `--system-prompt` / `--system-prompt-file`는 실행 동안 프로젝트 base 컨텍스트를 교체하고(dispatch된 sub-agent에도 적용됩니다), `--append-system-prompt` / `--append-system-prompt-file`는 각 레이어 시스템 메시지의 역할 뒤에 추가 지시를 덧붙입니다.',
+            },
+            {
+                kind: 'heading',
+                text: '파일 로깅',
+            },
+            {
+                kind: 'paragraph',
+                text: '로깅은 선택형입니다: `--log-level`을 넘기면 `~/.stepper/logs/stepper.log`에 기록합니다(`RUST_LOG` 환경 변수가 설정되어 있으면 그쪽이 우선합니다). TUI를 어지럽히지 않고 헤드리스 실행이나 오작동하는 provider를 디버깅할 때 유용합니다.',
             },
         ],
     },
@@ -1095,7 +1180,7 @@ export const DOC_PAGES_KO: DocPage[] = [
                     '**인증** — 환경 변수 또는 OS 키링(`stepper auth set-key` / `delete-key`)을 통한 프로바이더 키, 그리고 Codex(ChatGPT) OAuth.',
                     '**세션 & 제어** — 세션 재개, 체크포인트 + `/rewind`, 모델 기반 컴팩션, 훅, 스킬(점진적 공개), 슬래시 커맨드, MCP(stdio/HTTP) 서버.',
                     '**옵트인 OS 샌드박스** — macOS Seatbelt 프로파일이 `bash` 도구의 쓰기를 프로젝트로 제한한다(권한 엔진 아래의 방어 심층).',
-                     '**테스트 강화** — 격리 불변식 CI, core 통합 테스트(오케스트레이터, 컴팩션, 세션/되감기, 비용, 병렬 레이어, dispatch, 취소), 권한 매트릭스, TUI 렌더 스냅샷, 폐쇄형 MCP 에코, 프로바이더 픽스처 — 837개의 네트워크 비의존 테스트.',
+                    '**테스트 강화** — 격리 불변식 CI, core 통합 테스트(오케스트레이터, 컴팩션, 세션/되감기, 비용, 병렬 레이어, dispatch, 취소), 권한 매트릭스, TUI 렌더 스냅샷, 폐쇄형 MCP 에코, 프로바이더 픽스처 — 837개의 네트워크 비의존 테스트.',
                     '**라이브 엔드투엔드** — 2-레이어 파이프라인(ollama-cloud → oMLX), 스트리밍, `/rewind`, 재개가 실제 프로바이더 대상으로 검증되었다(`#[ignore]` + `STEPPER_E2E` 게이팅으로 유지되어 기본 `cargo test`는 건너뛴다).',
                 ],
             },

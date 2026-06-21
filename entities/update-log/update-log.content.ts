@@ -2,6 +2,76 @@ import type { UpdateLogEntry } from '@entities/update-log/update-log.type'
 
 export const UPDATE_LOG: UpdateLogEntry[] = [
     {
+        "version": "0.13.0",
+        "tag": "v0.13.0",
+        "date": "2026-06-21T06:59:47Z",
+        "groups": [
+            {
+                "label": "Features",
+                "items": [
+                    {
+                        "type": "feat",
+                        "subject": "백로그 11항목 (auto권한·effort 마이그레이션·/settings·MCP CLI·hooks·auto memory)",
+                        "hash": "68facbf"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "version": "0.12.0",
+        "tag": "v0.12.0",
+        "date": "2026-06-21T04:27:33Z",
+        "groups": [
+            {
+                "label": "Features",
+                "items": [
+                    {
+                        "type": "feat",
+                        "scope": "cli",
+                        "subject": "stepper models 헤드리스 CLI + --log-level 파일 로깅 (v0.12.0)",
+                        "hash": "6c02aab"
+                    },
+                    {
+                        "type": "feat",
+                        "scope": "editor",
+                        "subject": "/editor 슬래시·Ctrl+E로 외부 에디터에서 프롬프트 작성",
+                        "hash": "2365edf"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "version": "0.11.0",
+        "tag": "v0.11.0",
+        "date": "2026-06-21T01:31:28Z",
+        "groups": [
+            {
+                "label": "Features",
+                "items": [
+                    {
+                        "type": "feat",
+                        "scope": "stats",
+                        "subject": "by-tool 섹션에 막대차트+퍼센트 (opencode displayStats 패리티, v0.11.0)",
+                        "hash": "e145c8e"
+                    }
+                ]
+            },
+            {
+                "label": "Tests",
+                "items": [
+                    {
+                        "type": "test",
+                        "scope": "mcp",
+                        "subject": "bind_redirect 테스트 포트 TOCTOU 레이스 재시도로 flaky 제거",
+                        "hash": "6a885b3"
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "version": "0.10.0",
         "tag": "v0.10.0",
         "date": "2026-06-20T14:51:14Z",
