@@ -194,6 +194,8 @@ export const DOC_PAGES_EN: DocPage[] = [
                     ['auth delete-key <provider>', 'Remove a provider key from the OS keyring.'],
                     ['config --schema', 'Print the JSON Schema for `setting.json`.'],
                     ['config --validate', "Validate the project's `setting.json`."],
+                    ['doctor', 'Run integrated diagnostics — config, provider keys, model resolve, MCP, catalog, latest release.'],
+                    ['session rename <id> <name>', 'Rename a saved session from the command line.'],
                     ['init', 'Scaffold `.stepper/` (detects the stack → `stepper.md` + `setting.json`).'],
                 ],
             },
@@ -212,6 +214,14 @@ export const DOC_PAGES_EN: DocPage[] = [
                     ['--mode <auto|plan|accept-edits>', 'Permission mode (precedence: flag > `setting.json` `mode` > `accept-edits`).'],
                     ['-p, --print <prompt>', 'Headless one-shot: run the prompt, stream stdout, auto-approve.'],
                     ['--resume <session-id>', 'Continue a saved session (seeds its prior context).'],
+                    [
+                        '--fallback-model <a,b,c>',
+                        'Comma-separated model chain tried in order when the primary model fails (CLI wins over `setting.json`).',
+                    ],
+                    [
+                        '--output-schema <inline|file>',
+                        'Headless: force the final response to match a JSON Schema (`--output-schema-retries`, default 2).',
+                    ],
                     ['--cwd <dir>', 'Run against another directory.'],
                 ],
             },
@@ -516,6 +526,9 @@ export const DOC_PAGES_EN: DocPage[] = [
                     '`/clear` — reset the conversation/session',
                     '`/model [provider/model-id]` — show the active model or switch to a new one (validated before applying to every layer)',
                     "`/context` — display the active model's context window",
+                    '`/rename <name>` — rename the current session (persisted to its session file)',
+                    '`/export [path]` — write the session conversation to a Markdown transcript (defaults to `.stepper/exports/<id>.md`)',
+                    '`/rewind [code|conversation]` — restore a prior snapshot; scope to the file tree or the conversation, or both with no argument',
                 ],
             },
             {
@@ -685,7 +698,7 @@ export const DOC_PAGES_EN: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: 'Every turn automatically snapshots the working tree state. Use the `/rewind` command to restore a prior snapshot and truncate the session at that point, allowing you to undo changes and branch from an earlier state.',
+                text: 'Every turn automatically snapshots the working tree state. Use the `/rewind` command to restore a prior snapshot and truncate the session at that point, allowing you to undo changes and branch from an earlier state. Scope the restore with `/rewind code` (file tree only) or `/rewind conversation` (the conversation only); a bare `/rewind` (and Esc-Esc) restores both.',
             },
             {
                 kind: 'heading',
@@ -761,6 +774,8 @@ export const DOC_PAGES_EN: DocPage[] = [
                     ['`Esc`', 'Interrupt the current turn (abort stream and in-flight tools)'],
                     ['`Ctrl+C`', 'Quit the TUI'],
                     ['`Ctrl+E`', 'Compose the prompt in your external editor'],
+                    ['`↑` / `↓`', 'Recall the previous / next prompt from command history (at the first / last line)'],
+                    ['`Ctrl+R`', 'Open the reverse history search overlay'],
                     ['`!cmd`', 'Run a shell command'],
                     ['`@`', 'Open file picker'],
                     ['`/`', 'Open command palette'],
@@ -926,6 +941,127 @@ export const DOC_PAGES_EN: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: 'Logging is opt-in: pass `--log-level` to write to `~/.stepper/logs/stepper.log` (a `RUST_LOG` env var takes priority when set). Useful for debugging a headless run or a misbehaving provider without cluttering the TUI.',
+            },
+            {
+                kind: 'heading',
+                text: 'Command history & reverse search',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Submitted prompts persist to `~/.stepper/history/<project>.json` (last 500, consecutive duplicates dropped). Press `↑` / `↓` at the first / last line of the input to recall earlier / later prompts — your in-progress draft is preserved and restored when you walk back to the end. `Ctrl+R` opens a reverse-search overlay that matches substrings, most-recent first.',
+            },
+            {
+                kind: 'heading',
+                text: 'Fallback model chain',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Provide a fallback chain with `--fallback-model a,b,c` (comma-separated) or the `fallbackModel` setting (a string or array). When the primary model hits a non-retryable failure or exhausts its retries, stepper tries each model in the chain in order. The CLI flag wins over the setting; entries are trimmed, de-duplicated, and capped at three.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper --fallback-model anthropic/claude-haiku-4,openai/gpt-5',
+            },
+            {
+                kind: 'heading',
+                text: 'Integrated diagnostics',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper doctor` checks everything at once: config validation, provider API keys, default / fallback model resolution, live MCP server connections, the models.dev catalog, and the latest GitHub release version (network included). Missing keys or failed connections are warnings (exit 0); only invalid config or an unresolvable default model fail.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper doctor',
+            },
+            {
+                kind: 'heading',
+                text: 'Structured outputs (headless)',
+            },
+            {
+                kind: 'paragraph',
+                text: 'In headless mode, `-p --output-schema <inline|file>` forces the final response to conform to a JSON Schema. On a violation, stepper re-prompts with the validation error included (`--output-schema-retries`, default 2); if it still does not conform, the run exits non-zero. The validated JSON is re-serialized and printed (a code fence is allowed).',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper -p "list the open TODOs" --output-schema ./todos.schema.json',
+            },
+            {
+                kind: 'heading',
+                text: 'Tool search (deferred tool exposure)',
+            },
+            {
+                kind: 'paragraph',
+                text: 'When a layer has more than 40 tools and MCP tools are present, stepper hides the MCP tool definitions from the prompt and exposes only a `tool_search` meta-tool. When the model searches, the matching tools are revealed for that turn — keeping the base context lean while still reaching every tool on demand.',
+            },
+            {
+                kind: 'heading',
+                text: 'Custom statusline',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Set `statusLine: { command: [...] }` in `setting.json` and stepper runs that command periodically in the background (5s timeout), feeding model / mode / cwd / tokens / cost as JSON on stdin. The first line of its stdout renders in the footer — without ever blocking the UI.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"statusLine": { "command": ["my-statusline.sh"] }',
+            },
+            {
+                kind: 'heading',
+                text: 'Custom keybindings',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Add bindings in `~/.stepper/keybindings.json` (and a project `.stepper/keybindings.json`) as `{"action":"chord"}`. Bindings are additive — the built-in keys always keep working. Bindable actions: `newline`, `cycle-mode`, `external-editor`, `history-search`, `scroll-up`, `scroll-down` (chords like `ctrl+t`, `alt+k`). Submit / quit / interrupt are not rebindable.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '{ "external-editor": "ctrl+t", "history-search": "alt+k" }',
+            },
+            {
+                kind: 'heading',
+                text: 'Hierarchical CLAUDE.md',
+            },
+            {
+                kind: 'paragraph',
+                text: "From the project root down to the current working directory, each subdirectory's `CLAUDE.md` is accumulated into the base context (most specific last). This is additive to the existing project base (`.stepper/stepper.md` and other first-found files), which is unchanged.",
+            },
+            {
+                kind: 'heading',
+                text: 'Rename & export sessions',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/rename <name>` renames the current session and persists it (also available as `stepper session rename <id> <name>`). `/export [path]` writes the session conversation to a Markdown transcript, defaulting to `.stepper/exports/<id>.md`.',
+            },
+            {
+                kind: 'heading',
+                text: 'Path-scoped rules',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Drop rule files in `.stepper/rules/*.md` with a `paths:` glob in their frontmatter. A rule is loaded into the base context only when the current working directory matches its globs — so directory-specific conventions apply only where they belong.',
+            },
+            {
+                kind: 'heading',
+                text: 'Microcompaction',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Before a full compaction kicks in, microcompaction reclaims context by folding only the oldest, largest tool results — leaving the conversation turns intact. It buys headroom without summarizing the dialogue.',
+            },
+            {
+                kind: 'heading',
+                text: 'Ask-user-question tool',
+            },
+            {
+                kind: 'paragraph',
+                text: 'The model can raise a multiple-choice clarifying question through the built-in `ask_user_question` tool. The TUI shows it as a selection overlay (pick with a number or `↑` / `↓` + `Enter`) and returns the choice to the model. In headless / UI-less runs it proceeds as "unanswered".',
             },
         ],
     },

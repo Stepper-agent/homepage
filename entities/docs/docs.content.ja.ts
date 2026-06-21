@@ -194,6 +194,8 @@ export const DOC_PAGES_JA: DocPage[] = [
                     ['auth delete-key <provider>', 'OSキーリングからプロバイダーのキーを削除します。'],
                     ['config --schema', '`setting.json`のJSON Schemaを出力します。'],
                     ['config --validate', 'プロジェクトの`setting.json`を検証します。'],
+                    ['doctor', '統合診断を実行 — 設定・provider キー・モデル resolve・MCP・カタログ・最新リリースを一括チェック。'],
+                    ['session rename <id> <name>', '保存されたセッション名をコマンドラインから変更します。'],
                     ['init', '`.stepper/`をスキャフォールドします（スタックを検出 → `stepper.md` + `setting.json`）。'],
                 ],
             },
@@ -212,6 +214,8 @@ export const DOC_PAGES_JA: DocPage[] = [
                     ['--mode <auto|plan|accept-edits>', '権限モード（優先順位: フラグ > `setting.json`の`mode` > `accept-edits`）。'],
                     ['-p, --print <prompt>', 'ヘッドレスのワンショット: プロンプトを実行し、stdoutにストリーミングし、自動承認します。'],
                     ['--resume <session-id>', '保存されたセッションを続行します（以前のコンテキストをシードとして使用）。'],
+                    ['--fallback-model <a,b,c>', '主モデルが失敗したときに順に試すカンマ区切りのモデルチェーン（CLI が `setting.json` より優先）。'],
+                    ['--output-schema <inline|file>', 'ヘッドレス: 最終応答を JSON Schema に準拠させる（`--output-schema-retries`、既定 2）。'],
                     ['--cwd <dir>', '別のディレクトリを対象に実行します。'],
                 ],
             },
@@ -515,6 +519,9 @@ export const DOC_PAGES_JA: DocPage[] = [
                     '`/clear` — 会話/セッションをリセット',
                     '`/model [provider/model-id]` — アクティブなモデルを表示するか、新しいモデルに切り替える(すべてのレイヤーに適用する前に検証される)',
                     '`/context` — アクティブなモデルのコンテキストウィンドウを表示',
+                    '`/rename <name>` — 現在のセッション名を変更(セッションファイルに永続化)',
+                    '`/export [path]` — セッションの会話を Markdown トランスクリプトに保存(既定は `.stepper/exports/<id>.md`)',
+                    '`/rewind [code|conversation]` — 以前のスナップショットを復元; ファイルツリー/会話に範囲を絞るか、引数なしで両方を復元',
                 ],
             },
             {
@@ -685,7 +692,7 @@ export const DOC_PAGES_JA: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: '毎ターン、作業ツリーの状態が自動的にスナップショットされます。`/rewind` コマンドを使うと、以前のスナップショットを復元してその時点でセッションを切り詰められるため、変更を取り消して以前の状態から分岐できます。',
+                text: '毎ターン、作業ツリーの状態が自動的にスナップショットされます。`/rewind` コマンドを使うと、以前のスナップショットを復元してその時点でセッションを切り詰められるため、変更を取り消して以前の状態から分岐できます。復元の範囲は `/rewind code`（ファイルツリーのみ）や `/rewind conversation`（会話のみ）で絞れ、引数なしの `/rewind`（および Esc-Esc）は両方を復元します。',
             },
             {
                 kind: 'heading',
@@ -761,6 +768,8 @@ export const DOC_PAGES_JA: DocPage[] = [
                     ['`Esc`', '現在のターンをインタラプト（ストリームと処理中のツールを中断）'],
                     ['`Ctrl+C`', 'TUI を終了'],
                     ['`Ctrl+E`', '外部エディターでプロンプトを編集'],
+                    ['`↑` / `↓`', 'コマンド履歴から前/次のプロンプトを recall（先頭/末尾の行で）'],
+                    ['`Ctrl+R`', '逆方向の履歴検索オーバーレイを開く'],
                     ['`!cmd`', 'シェルコマンドを実行'],
                     ['`@`', 'ファイルピッカーを開く'],
                     ['`/`', 'コマンドパレットを開く'],
@@ -926,6 +935,127 @@ export const DOC_PAGES_JA: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: 'ログはオプトインです: `--log-level` を渡すと `~/.stepper/logs/stepper.log` に書き込みます（`RUST_LOG` 環境変数が設定されている場合はそちらが優先されます）。TUI を散らかさずに、ヘッドレス実行や挙動のおかしいプロバイダーをデバッグするのに便利です。',
+            },
+            {
+                kind: 'heading',
+                text: 'コマンド履歴 & 逆検索',
+            },
+            {
+                kind: 'paragraph',
+                text: '送信したプロンプトは `~/.stepper/history/<project>.json` に永続化されます（直近 500 件、連続する重複は除去）。入力の先頭/末尾の行で `↑` / `↓` を押すと、前/次のプロンプトを recall します — 入力中の draft は保存され、末尾に戻ると復元されます。`Ctrl+R` は部分一致を新しい順でマッチする逆検索オーバーレイを開きます。',
+            },
+            {
+                kind: 'heading',
+                text: 'fallback モデルチェーン',
+            },
+            {
+                kind: 'paragraph',
+                text: '`--fallback-model a,b,c`（カンマ区切り）または `fallbackModel` 設定（文字列または配列）でフォールバックチェーンを指定します。主モデルがリトライ不可の失敗に遭遇するか、リトライを使い切ると、stepper はチェーンのモデルを順に試します。CLI フラグが設定より優先され、各項目は trim・重複除去のうえ最大 3 つに制限されます。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper --fallback-model anthropic/claude-haiku-4,openai/gpt-5',
+            },
+            {
+                kind: 'heading',
+                text: '統合診断',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper doctor` は一度にすべてをチェックします: 設定の検証、provider API キー、デフォルト/フォールバックモデルの resolve、ライブ MCP サーバー接続、models.dev カタログ、そして GitHub の最新リリースバージョン（ネットワークを含む）。キーの欠落や接続失敗は警告（exit 0）であり、無効な設定や解決不能なデフォルトモデルのみが失敗します。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper doctor',
+            },
+            {
+                kind: 'heading',
+                text: 'structured outputs（ヘッドレス）',
+            },
+            {
+                kind: 'paragraph',
+                text: 'ヘッドレスモードでは、`-p --output-schema <inline|file>` が最終応答を JSON Schema に準拠させます。違反時には検証エラーを含めて再プロンプトし（`--output-schema-retries`、既定 2）、それでも準拠しなければ non-zero で終了します。検証済みの JSON は再シリアライズされて出力されます（コードフェンス可）。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper -p "list the open TODOs" --output-schema ./todos.schema.json',
+            },
+            {
+                kind: 'heading',
+                text: 'tool-search（ツールの遅延公開）',
+            },
+            {
+                kind: 'paragraph',
+                text: 'あるレイヤーのツールが 40 を超え、MCP ツールが存在する場合、stepper は MCP ツール定義をプロンプトから隠し、`tool_search` メタツールのみを公開します。モデルが検索すると、一致したツールがそのターンの間だけ公開（reveal）されます — ベースコンテキストを軽く保ちつつ、必要なときにすべてのツールに到達できます。',
+            },
+            {
+                kind: 'heading',
+                text: 'カスタム statusline',
+            },
+            {
+                kind: 'paragraph',
+                text: '`setting.json` に `statusLine: { command: [...] }` を設定すると、stepper はそのコマンドをバックグラウンドで定期的に実行し（5s タイムアウト）、モデル / モード / cwd / トークン / コストを JSON で stdin に渡します。その stdout の最初の行がフッターにレンダリングされます — UI をブロックすることはありません。',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"statusLine": { "command": ["my-statusline.sh"] }',
+            },
+            {
+                kind: 'heading',
+                text: 'カスタマイズ可能なキーバインド',
+            },
+            {
+                kind: 'paragraph',
+                text: '`~/.stepper/keybindings.json`（およびプロジェクトの `.stepper/keybindings.json`）に `{"action":"chord"}` 形式でバインディングを追加します。バインディングは加算式です — 組み込みのキーは常に動作します。バインド可能: `newline`、`cycle-mode`、`external-editor`、`history-search`、`scroll-up`、`scroll-down`（chord 例: `ctrl+t`、`alt+k`）。submit / quit / interrupt はバインド不可です。',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '{ "external-editor": "ctrl+t", "history-search": "alt+k" }',
+            },
+            {
+                kind: 'heading',
+                text: '階層的に累積する CLAUDE.md',
+            },
+            {
+                kind: 'paragraph',
+                text: 'プロジェクトルートから現在の作業ディレクトリまで、各サブディレクトリの `CLAUDE.md` がベースコンテキストに累積されます（最も具体的なものが最後）。これは既存のプロジェクトベース（`.stepper/stepper.md` などの first-found ファイル）に加算され、既存の動作はそのまま維持されます。',
+            },
+            {
+                kind: 'heading',
+                text: 'セッションの rename & export',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/rename <name>` は現在のセッション名を変更して永続化します（`stepper session rename <id> <name>` でも可能）。`/export [path]` はセッションの会話を Markdown トランスクリプトに保存し、既定パスは `.stepper/exports/<id>.md` です。',
+            },
+            {
+                kind: 'heading',
+                text: 'path-scoped rules',
+            },
+            {
+                kind: 'paragraph',
+                text: '`.stepper/rules/*.md` に frontmatter の `paths:` グロブを持つルールファイルを置きます。ルールは現在の作業ディレクトリがそのグロブに一致したときのみベースコンテキストに読み込まれます — ディレクトリ固有の規約が該当する場所でのみ適用されます。',
+            },
+            {
+                kind: 'heading',
+                text: 'microcompaction',
+            },
+            {
+                kind: 'paragraph',
+                text: 'フルのコンパクションが作動する前に、microcompaction は最も古く大きいツール結果だけを折りたたんでコンテキストを回収します — 会話のターンはそのまま保持します。会話を要約せずに余裕を確保します。',
+            },
+            {
+                kind: 'heading',
+                text: 'ask-user-question ツール',
+            },
+            {
+                kind: 'paragraph',
+                text: 'モデルは組み込みの `ask_user_question` ツールで多肢選択の明確化質問を出せます。TUI はそれを選択オーバーレイとして表示し（数字または `↑` / `↓` + `Enter` で選択）、選択をモデルに返します。ヘッドレス / UI なしの実行では「未回答」として進行します。',
             },
         ],
     },

@@ -193,6 +193,8 @@ export const DOC_PAGES_KO: DocPage[] = [
                     ['auth delete-key <provider>', 'OS 키링에서 프로바이더 키를 제거합니다.'],
                     ['config --schema', '`setting.json`의 JSON 스키마를 출력합니다.'],
                     ['config --validate', '프로젝트의 `setting.json`을 검증합니다.'],
+                    ['doctor', '통합 진단 실행 — 설정·provider 키·모델 resolve·MCP·카탈로그·최신 릴리스를 한 번에 점검.'],
+                    ['session rename <id> <name>', '저장된 세션 이름을 커맨드라인에서 변경합니다.'],
                     ['init', '`.stepper/`를 스캐폴딩합니다(스택 감지 → `stepper.md` + `setting.json`).'],
                 ],
             },
@@ -208,6 +210,8 @@ export const DOC_PAGES_KO: DocPage[] = [
                     ['--mode <auto|plan|accept-edits>', '권한 모드(우선순위: 플래그 > `setting.json`의 `mode` > `accept-edits`).'],
                     ['-p, --print <prompt>', '헤드리스 원샷: 프롬프트를 실행하고 stdout으로 스트리밍하며 자동 승인합니다.'],
                     ['--resume <session-id>', '저장된 세션을 이어갑니다(이전 컨텍스트를 시드로 사용).'],
+                    ['--fallback-model <a,b,c>', '주 모델 실패 시 순서대로 시도할 쉼표 구분 모델 체인(CLI가 `setting.json`보다 우선).'],
+                    ['--output-schema <inline|file>', '헤드리스: 최종 응답을 JSON Schema에 맞게 강제(`--output-schema-retries`, 기본 2).'],
                     ['--cwd <dir>', '다른 디렉터리를 대상으로 실행합니다.'],
                 ],
             },
@@ -510,6 +514,9 @@ export const DOC_PAGES_KO: DocPage[] = [
                     '`/clear` — 대화/세션 초기화',
                     '`/model [provider/model-id]` — 활성 모델을 표시하거나 새 모델로 전환(모든 레이어에 적용하기 전에 검증됨)',
                     '`/context` — 활성 모델의 컨텍스트 윈도우 표시',
+                    '`/rename <name>` — 현재 세션 이름 변경(세션 파일에 영속)',
+                    '`/export [path]` — 세션 대화를 Markdown 전사로 저장(기본 `.stepper/exports/<id>.md`)',
+                    '`/rewind [code|conversation]` — 이전 스냅샷 복원; 파일 트리/대화로 범위를 좁히거나 인자 없이 둘 다 복원',
                 ],
             },
             {
@@ -679,7 +686,7 @@ export const DOC_PAGES_KO: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: '매 턴마다 작업 트리 상태가 자동으로 스냅샷됩니다. `/rewind` 커맨드를 사용하면 이전 스냅샷을 복원하고 그 지점에서 세션을 잘라낼 수 있어, 변경을 되돌리고 더 이른 상태에서 분기할 수 있습니다.',
+                text: '매 턴마다 작업 트리 상태가 자동으로 스냅샷됩니다. `/rewind` 커맨드를 사용하면 이전 스냅샷을 복원하고 그 지점에서 세션을 잘라낼 수 있어, 변경을 되돌리고 더 이른 상태에서 분기할 수 있습니다. 복원 범위는 `/rewind code`(파일 트리만) 또는 `/rewind conversation`(대화만)으로 좁힐 수 있으며, 인자 없는 `/rewind`(및 Esc-Esc)는 둘 다 복원합니다.',
             },
             {
                 kind: 'heading',
@@ -755,6 +762,8 @@ export const DOC_PAGES_KO: DocPage[] = [
                     ['`Esc`', '현재 턴 인터럽트(스트림과 진행 중인 도구 중단)'],
                     ['`Ctrl+C`', 'TUI 종료'],
                     ['`Ctrl+E`', '외부 에디터에서 프롬프트 작성'],
+                    ['`↑` / `↓`', '명령 히스토리에서 이전/다음 프롬프트 recall(첫/끝 줄에서)'],
+                    ['`Ctrl+R`', '역방향 히스토리 검색 오버레이 열기'],
                     ['`!cmd`', '셸 명령 실행'],
                     ['`@`', '파일 선택기 열기'],
                     ['`/`', '커맨드 팔레트 열기'],
@@ -920,6 +929,127 @@ export const DOC_PAGES_KO: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: '로깅은 선택형입니다: `--log-level`을 넘기면 `~/.stepper/logs/stepper.log`에 기록합니다(`RUST_LOG` 환경 변수가 설정되어 있으면 그쪽이 우선합니다). TUI를 어지럽히지 않고 헤드리스 실행이나 오작동하는 provider를 디버깅할 때 유용합니다.',
+            },
+            {
+                kind: 'heading',
+                text: '명령 히스토리 & 역검색',
+            },
+            {
+                kind: 'paragraph',
+                text: '제출한 프롬프트는 `~/.stepper/history/<project>.json`에 영속됩니다(최근 500개, 연속 중복 제거). 입력의 첫/끝 줄에서 `↑` / `↓`를 누르면 이전/다음 프롬프트를 recall하며, 입력 중이던 draft는 보존되어 끝으로 돌아오면 복원됩니다. `Ctrl+R`은 부분 문자열을 최근순으로 매칭하는 역검색 오버레이를 엽니다.',
+            },
+            {
+                kind: 'heading',
+                text: 'fallback 모델 체인',
+            },
+            {
+                kind: 'paragraph',
+                text: '`--fallback-model a,b,c`(쉼표 구분) 또는 `fallbackModel` 설정(문자열 또는 배열)으로 폴백 체인을 지정합니다. 주 모델이 재시도 불가 실패를 만나거나 재시도를 소진하면 stepper는 체인의 모델을 순서대로 시도합니다. CLI 플래그가 설정보다 우선하며, 항목은 공백 trim·중복 제거 후 최대 3개로 제한됩니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper --fallback-model anthropic/claude-haiku-4,openai/gpt-5',
+            },
+            {
+                kind: 'heading',
+                text: '통합 진단',
+            },
+            {
+                kind: 'paragraph',
+                text: '`stepper doctor`는 한 번에 모두 점검합니다: 설정 검증, provider API 키, 기본/폴백 모델 resolve, 실제 MCP 서버 연결, models.dev 카탈로그, 그리고 GitHub 최신 릴리스 버전(네트워크 포함). 키 누락이나 연결 실패는 경고이며(exit 0), 무효 설정이나 해석 불가한 기본 모델만 실패합니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper doctor',
+            },
+            {
+                kind: 'heading',
+                text: 'structured outputs (헤드리스)',
+            },
+            {
+                kind: 'paragraph',
+                text: '헤드리스 모드에서 `-p --output-schema <inline|file>`는 최종 응답을 JSON Schema에 맞게 강제합니다. 위반 시 검증 오류를 담아 재프롬프트하며(`--output-schema-retries`, 기본 2), 끝내 충족하지 못하면 non-zero로 종료합니다. 검증된 JSON은 재직렬화되어 출력됩니다(코드 펜스 허용).',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper -p "list the open TODOs" --output-schema ./todos.schema.json',
+            },
+            {
+                kind: 'heading',
+                text: 'tool-search (도구 지연 노출)',
+            },
+            {
+                kind: 'paragraph',
+                text: '한 레이어의 도구가 40개를 넘고 MCP 도구가 존재하면, stepper는 MCP 도구 정의를 프롬프트에서 숨기고 `tool_search` 메타도구만 노출합니다. 모델이 검색하면 매칭된 도구를 그 턴 동안만 노출(reveal)합니다 — base 컨텍스트를 가볍게 유지하면서도 필요할 때 모든 도구에 도달합니다.',
+            },
+            {
+                kind: 'heading',
+                text: '커스텀 statusline',
+            },
+            {
+                kind: 'paragraph',
+                text: '`setting.json`에 `statusLine: { command: [...] }`를 설정하면 stepper가 그 명령을 백그라운드에서 주기적으로 실행하며(5s 타임아웃), 모델 / 모드 / cwd / 토큰 / 비용을 JSON으로 stdin에 넘깁니다. stdout의 첫 줄이 푸터에 렌더링되며 — UI를 막지 않습니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"statusLine": { "command": ["my-statusline.sh"] }',
+            },
+            {
+                kind: 'heading',
+                text: '커스터마이즈 키바인드',
+            },
+            {
+                kind: 'paragraph',
+                text: '`~/.stepper/keybindings.json`(및 프로젝트 `.stepper/keybindings.json`)에 `{"action":"chord"}` 형태로 바인딩을 추가합니다. 바인딩은 가산식입니다 — 기본 키는 항상 동작합니다. 바인딩 가능: `newline`, `cycle-mode`, `external-editor`, `history-search`, `scroll-up`, `scroll-down`(chord 예: `ctrl+t`, `alt+k`). submit / quit / interrupt는 비바인딩입니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '{ "external-editor": "ctrl+t", "history-search": "alt+k" }',
+            },
+            {
+                kind: 'heading',
+                text: '계층 누적 CLAUDE.md',
+            },
+            {
+                kind: 'paragraph',
+                text: '프로젝트 루트부터 현재 작업 디렉터리까지, 각 서브디렉터리의 `CLAUDE.md`가 base 컨텍스트에 누적됩니다(가장 구체적인 것이 마지막). 이는 기존 프로젝트 base(`.stepper/stepper.md` 등 first-found 파일)에 가산되며, 기존 동작은 그대로 유지됩니다.',
+            },
+            {
+                kind: 'heading',
+                text: '세션 rename & export',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/rename <name>`은 현재 세션의 이름을 변경하고 영속합니다(`stepper session rename <id> <name>`으로도 가능). `/export [path]`는 세션 대화를 Markdown 전사로 저장하며, 기본 경로는 `.stepper/exports/<id>.md`입니다.',
+            },
+            {
+                kind: 'heading',
+                text: 'path-scoped rules',
+            },
+            {
+                kind: 'paragraph',
+                text: '`.stepper/rules/*.md`에 frontmatter `paths:` 글롭을 둔 규칙 파일을 배치합니다. 규칙은 현재 작업 디렉터리가 그 글롭에 매칭될 때에만 base 컨텍스트에 로드됩니다 — 디렉터리별 규칙이 해당 위치에서만 적용됩니다.',
+            },
+            {
+                kind: 'heading',
+                text: 'microcompaction',
+            },
+            {
+                kind: 'paragraph',
+                text: '풀 압축이 작동하기 전에, microcompaction은 가장 오래되고 큰 도구 결과만 접어 컨텍스트를 회수합니다 — 대화 턴은 그대로 보존합니다. 대화를 요약하지 않고도 여유 공간을 확보합니다.',
+            },
+            {
+                kind: 'heading',
+                text: 'ask-user-question 도구',
+            },
+            {
+                kind: 'paragraph',
+                text: '모델은 내장 `ask_user_question` 도구로 객관식 명확화 질문을 띄울 수 있습니다. TUI는 이를 선택 오버레이로 표시하며(숫자 또는 `↑` / `↓` + `Enter`로 선택), 선택을 모델에 반환합니다. 헤드리스 / 무UI 실행에서는 "미응답"으로 진행합니다.',
             },
         ],
     },
