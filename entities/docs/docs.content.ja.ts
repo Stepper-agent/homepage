@@ -219,6 +219,19 @@ export const DOC_PAGES_JA: DocPage[] = [
                     ['--cwd <dir>', '別のディレクトリを対象に実行します。'],
                 ],
             },
+            {
+                kind: 'heading',
+                text: '開始プロンプト & stdin',
+            },
+            {
+                kind: 'paragraph',
+                text: 'positional なプロンプトを渡すと、そのプロンプトでシードされた対話型 TUI がそのまま開きます。プロンプトを stdin でパイプすることもできます — `cat task.md | stepper`（ヘッドレスのワンショットは `| stepper -p`）。`-p` は値を与えなくても stdin をプロンプトとして読み取ります。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper "fix the failing test"\ncat task.md | stepper\ncat task.md | stepper -p',
+            },
         ],
     },
     {
@@ -299,7 +312,7 @@ export const DOC_PAGES_JA: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: 'stepperは次の順序でAPIキーを探します: 設定内の明示的な`apiKey` → 環境変数 → OSキーリング。最初に一致したものが採用されます。',
+                text: 'stepperは次の順序でAPIキーを探します: 設定内の明示的な`apiKey` → `STEPPER_<PROVIDER>_API_KEY` 環境変数 → well-known なベンダー環境変数（例: `ANTHROPIC_API_KEY`、`OPENAI_API_KEY`） → OSキーリング。最初に一致したものが採用されます。',
             },
             {
                 kind: 'subheading',
@@ -313,6 +326,14 @@ export const DOC_PAGES_JA: DocPage[] = [
                 kind: 'code',
                 lang: 'sh',
                 code: "# Env var: STEPPER_<PROVIDER>_API_KEY  (provider uppercased, '-' → '_')\nexport STEPPER_ANTHROPIC_API_KEY=sk-ant-...\nexport STEPPER_OLLAMA_CLOUD_API_KEY=...",
+            },
+            {
+                kind: 'subheading',
+                text: 'well-known なベンダーキー',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper は標準的なベンダー環境変数も認識するため、Claude Code（や他のツール）から移行したユーザーは keyless ですぐに始められます。認識されるキーには `ANTHROPIC_API_KEY`、`OPENAI_API_KEY`、`GROQ_API_KEY`、`GEMINI_API_KEY`、`MISTRAL_API_KEY`、`XAI_API_KEY`、`DEEPSEEK_API_KEY`、`OPENROUTER_API_KEY` があります。同じプロバイダーに `STEPPER_<PROVIDER>_API_KEY` があれば、well-known な変数より優先されます。',
             },
             {
                 kind: 'subheading',
@@ -350,7 +371,7 @@ export const DOC_PAGES_JA: DocPage[] = [
             },
             {
                 kind: 'note',
-                text: 'キーの優先順位は設定内の明示的な`apiKey` > 環境変数 > OSキーリングの順です。stepperを実行する前に必ずキーを設定してください。そうしないと、いずれかのレイヤーが未構成のプロバイダーのモデルを要求した際に実行時に失敗します。',
+                text: 'キーの優先順位は設定内の明示的な`apiKey` > `STEPPER_<PROVIDER>_API_KEY` > well-known なベンダー環境変数 > OSキーリングの順です。stepperを実行する前に必ずキーを設定してください。そうしないと、いずれかのレイヤーが未構成のプロバイダーのモデルを要求した際に実行時に失敗します。',
             },
         ],
     },
@@ -483,6 +504,7 @@ export const DOC_PAGES_JA: DocPage[] = [
                     ['`Edit(**)`', 'ファイル編集パス（同じパス構文）。'],
                     ['`Mcp(server, tool)`', 'MCP ツール（`tool` は任意 / 任意のツールには `*`）。'],
                     ['`Bash`（引数なし）', 'そのツールの任意の bash コマンド。'],
+                    ['`Web*`、`*`', 'ツール名の glob — ツール系統（`Web*`）やすべてのツール（`*`）にマッチ。'],
                 ],
             },
             {
@@ -492,6 +514,22 @@ export const DOC_PAGES_JA: DocPage[] = [
             {
                 kind: 'note',
                 text: '複合 bash（`a && b`）はコンポーネントごとにゲートされ（最も制限的なものが優先）、リダイレクト / `$()` / バッククォート / `&` を含む bash コマンドは `allow` を `ask` にエスカレーションします。',
+            },
+            {
+                kind: 'heading',
+                text: 'プロセスラッパーの strip',
+            },
+            {
+                kind: 'paragraph',
+                text: 'ルールを照合する前に、stepper はよくあるコマンドラッパーを剥がして内部のコマンドまでゲートします。`sudo rm`、`timeout 5 rm`、`env X=1 rm`、`nice`、`nohup`、`xargs` はすべて包まれたコマンドに還元されるため、`rm` に対する `deny` はラッパーで回避されることなくそれらすべてを捕捉します。',
+            },
+            {
+                kind: 'heading',
+                text: '実行される dotfile の保護',
+            },
+            {
+                kind: 'paragraph',
+                text: '`auto` / `accept-edits` モードでも、実行または source される設定ファイル — `.bashrc`、`.zshenv`、`.profile`、`.envrc`、`.gitconfig`、`.git/hooks/*` — の編集は決して自動承認されず、明示的な Ask に格上げされます（bypass モードでは完全に Deny）。シークレットファイル（`.env`、`id_rsa`、`*.pem`）は読み取り・書き込みの両方とも引き続き完全にブロックされます。',
             },
         ],
     },
@@ -522,6 +560,8 @@ export const DOC_PAGES_JA: DocPage[] = [
                     '`/rename <name>` — 現在のセッション名を変更(セッションファイルに永続化)',
                     '`/export [path]` — セッションの会話を Markdown トランスクリプトに保存(既定は `.stepper/exports/<id>.md`)',
                     '`/rewind [code|conversation]` — 以前のスナップショットを復元; ファイルツリー/会話に範囲を絞るか、引数なしで両方を復元',
+                    '`/copy` — 最後のアシスタント応答を OS クリップボードにコピー',
+                    '`/code-review [ref | #pr] [--fix]` — diff を単一パスでレビュー（既定は uncommitted な変更）; `--fix` は確定した findings を適用',
                 ],
             },
             {
@@ -723,7 +763,7 @@ export const DOC_PAGES_JA: DocPage[] = [
                     '`PreToolUse` — ツールが呼び出される前に実行され、0 以外の終了コードはツールをブロックします',
                     '`PostToolUse` — ツールの完了後に実行されます',
                     '`PreCompact` — 履歴が畳み込まれる前に実行されます',
-                    '`SubagentStop` — fan-out または dispatch されたサブエージェントの完了時に実行されます',
+                    '`SubagentStop` — 並列レイヤーのワーカー、または `task` / `dispatch` サブエージェントの完了時に実行されます',
                     '`Notification` — 通知イベント時に実行されます',
                     '`Stop` — ターンが停止したときに実行されます',
                     '`SessionEnd` — セッションの終了時に実行されます',
@@ -737,6 +777,15 @@ export const DOC_PAGES_JA: DocPage[] = [
                 kind: 'code',
                 lang: 'jsonc',
                 code: '"hooks": {\n  "PreToolUse": [{ "matcher": "write_file", "command": "echo blocked >&2; exit 2" }]\n}',
+            },
+            {
+                kind: 'paragraph',
+                text: '各フックは `timeout`（秒）を設定して既定の 30 秒の上限を引き上げられます — `Stop` フックでのフォーマッターやテスト実行に便利です。フックプロセスには環境変数として `$STEPPER_PROJECT_DIR` と `$CLAUDE_PROJECT_DIR`（どちらもプロジェクトルート）が注入されます。`PreToolUse` を除くすべてのイベントでは、あるフックが non-zero で終了しても一致した残りのフックがすべて実行され、`PreToolUse` だけが最初のブロック終了で短絡します。',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"hooks": {\n  "Stop": [{ "matcher": "*", "command": "cargo fmt && cargo test", "timeout": 120 }]\n}',
             },
             {
                 kind: 'heading',
@@ -1027,6 +1076,14 @@ export const DOC_PAGES_JA: DocPage[] = [
             },
             {
                 kind: 'heading',
+                text: 'AGENTS.md のベースコンテキスト',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper はプロジェクトルートの `./AGENTS.md`（クロスエージェント標準）と `~/.config/AGENTS.md` もベースコンテキスト候補として取り込みます。完全な解決順序は `.stepper/stepper.md` → `./CLAUDE.md` → `./AGENTS.md` → `~/.stepper/stepper.md` → `~/.claude/CLAUDE.md` → `~/.config/AGENTS.md` です。',
+            },
+            {
+                kind: 'heading',
                 text: 'セッションの rename & export',
             },
             {
@@ -1056,6 +1113,27 @@ export const DOC_PAGES_JA: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: 'モデルは組み込みの `ask_user_question` ツールで多肢選択の明確化質問を出せます。TUI はそれを選択オーバーレイとして表示し（数字または `↑` / `↓` + `Enter` で選択）、選択をモデルに返します。ヘッドレス / UI なしの実行では「未回答」として進行します。',
+            },
+            {
+                kind: 'heading',
+                text: '最後の応答をコピー',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/copy` は最新のアシスタント応答を OS クリップボードにコピーします — 引数もエージェントターンも不要です。',
+            },
+            {
+                kind: 'heading',
+                text: 'コードレビューコマンド',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/code-review` は diff を単一パスでレビューします。引数がなければ uncommitted な作業変更をレビューし（ツリーがクリーンなら `origin/main` などの基準ブランチとの diff にフォールバック）、git ref や `<a>..<b>` 範囲はその範囲を、`#123` は `gh pr diff` で GitHub プルリクエストをレビューします。`--fix` を付けると findings をレポートしたうえで確定したものを適用します。約 96KB を超える diff はファイル一覧のレビューにフォールバックします。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: '/code-review\n/code-review origin/main..HEAD\n/code-review #123 --fix',
             },
         ],
     },

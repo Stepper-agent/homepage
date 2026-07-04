@@ -72,22 +72,22 @@ export const ja: Dictionary = {
             {
                 title: '権限システム',
                 description:
-                    'デフォルトの auto は、読み取り専用ツールをどこでも確認なしに実行し、プロジェクト内の編集を自動適用し、プロジェクト外への書き込みだけを確認します。plan と accept-edits がモードを補い、その上に allow / ask / deny ルール、永続化された approvals、そして該当する場所でのみ読み込まれる path-scoped ルールが乗ります。ヘッドレスの -p はデフォルト deny — fail-closed です。',
+                    'デフォルトの auto は、読み取り専用ツールをどこでも確認なしに実行し、プロジェクト内の編集を自動適用し、プロジェクト外への書き込みだけを確認します — ただし .bashrc や .git/hooks/* のような実行される dotfile の編集は依然として Ask に格上げされます。plan と accept-edits がモードを補い、その上にツール名 glob とプロセスラッパーの strip を備えた allow / ask / deny ルール、永続化された approvals、そして該当する場所でのみ読み込まれる path-scoped ルールが乗ります。ヘッドレスの -p はデフォルト deny — fail-closed です。',
             },
             {
                 title: 'TUI',
                 description:
-                    'ratatui 製のターミナル UI：テーマごとに彩色されたパネル上のライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト · effort）、diff 承認オーバーレイ、Ctrl+R 逆検索を備えたコマンド履歴、ask-user-question 選択オーバーレイ、/settings、13 種の組み込みパレットを備えた /theme エディター、入力で絞り込む /models ピッカー、/connect、/effort、/editor（Ctrl+E）、/rename · /export、/undo · /redo、そしてオプションのターミナルベル通知。あるいは -p、--agent、--file、--format json でヘッドレス実行。',
+                    'ratatui 製のターミナル UI：テーマごとに彩色されたパネル上のライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト · effort）、diff 承認オーバーレイ、Ctrl+R 逆検索を備えたコマンド履歴、ask-user-question 選択オーバーレイ、/settings、13 種の組み込みパレットを備えた /theme エディター、入力で絞り込む /models ピッカー、/connect、/effort、/editor（Ctrl+E）、/rename · /export、/copy · /code-review、/undo · /redo、そしてオプションのターミナルベル通知。positional プロンプトや stdin パイプで起動でき、あるいは -p、--agent、--file、--format json でヘッドレス実行。',
             },
             {
                 title: 'セッションと制御',
                 description:
-                    'セッション resume、list / delete · /rename · /export と --fork、checkpoint + 範囲指定 /rewind（code · conversation）、/undo · /redo、自動コンテキスト圧縮と microcompaction、主モデル失敗時の fallback モデルチェーン、セッションをまたぐ自動メモリ、9 つのライフサイクル hooks、調整可能な推論強度、progressive disclosure 方式の skills、スラッシュコマンド、MCP サーバー（stdio/http、サーバーごとの設定 + OAuth）、そして stepper stats によるセッション横断の利用統計。',
+                    'セッション resume、list / delete · /rename · /export と --fork、checkpoint + 範囲指定 /rewind（code · conversation）、/undo · /redo、自動コンテキスト圧縮と microcompaction、主モデル失敗時の fallback モデルチェーン、セッションをまたぐ自動メモリ、9 つのライフサイクル hooks（フックごとの timeout + プロジェクトディレクトリ env）、調整可能な推論強度、progressive disclosure 方式の skills、スラッシュコマンド、MCP サーバー（stdio/http、サーバーごとの設定 + OAuth）、そして stepper stats によるセッション横断の利用統計。',
             },
             {
                 title: '設定とエンタープライズ',
                 description:
-                    '{env:} / {file:} 置換と STEPPER_CONFIG オーバーライドに対応する JSONC の setting.json、階層的に累積する CLAUDE.md コンテキスト、カスタムキーバインドとカスタム statusline、stepper doctor 統合チェック、ヘッドレスのシステムプロンプトオーバーライドと --output-schema structured outputs、stepper mcp 管理 CLI（list / get / add / remove）、明示的な HTTP(S) プロキシとプライベート CA サポート、そしてリモート MCP サーバー向けの OAuth。',
+                    '{env:} / {file:} 置換と STEPPER_CONFIG オーバーライドに対応する JSONC の setting.json、階層的に累積する CLAUDE.md および AGENTS.md コンテキスト、keyless 移行のための well-known なベンダー API キー、カスタムキーバインドとカスタム statusline、stepper doctor 統合チェック、ヘッドレスのシステムプロンプトオーバーライドと --output-schema structured outputs、stepper mcp 管理 CLI（list / get / add / remove）、明示的な HTTP(S) プロキシとプライベート CA サポート、そしてリモート MCP サーバー向けの OAuth。',
             },
         ],
     },

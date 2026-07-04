@@ -215,6 +215,19 @@ export const DOC_PAGES_KO: DocPage[] = [
                     ['--cwd <dir>', '다른 디렉터리를 대상으로 실행합니다.'],
                 ],
             },
+            {
+                kind: 'heading',
+                text: '시작 프롬프트 & stdin',
+            },
+            {
+                kind: 'paragraph',
+                text: 'positional 프롬프트를 넘기면 그 프롬프트로 시드된 대화형 TUI가 바로 열립니다. 프롬프트를 stdin으로 파이프할 수도 있습니다 — `cat task.md | stepper`(또는 헤드리스 원샷은 `| stepper -p`). `-p`는 값이 없어도 stdin을 프롬프트로 읽습니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper "fix the failing test"\ncat task.md | stepper\ncat task.md | stepper -p',
+            },
         ],
     },
     {
@@ -295,7 +308,7 @@ export const DOC_PAGES_KO: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: 'stepper는 다음 순서로 API 키를 찾습니다: 설정의 명시적 `apiKey` → 환경 변수 → OS 키링. 가장 먼저 일치하는 것이 적용됩니다.',
+                text: 'stepper는 다음 순서로 API 키를 찾습니다: 설정의 명시적 `apiKey` → `STEPPER_<PROVIDER>_API_KEY` 환경 변수 → well-known 벤더 환경 변수(예: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) → OS 키링. 가장 먼저 일치하는 것이 적용됩니다.',
             },
             {
                 kind: 'subheading',
@@ -309,6 +322,14 @@ export const DOC_PAGES_KO: DocPage[] = [
                 kind: 'code',
                 lang: 'sh',
                 code: "# Env var: STEPPER_<PROVIDER>_API_KEY  (provider uppercased, '-' → '_')\nexport STEPPER_ANTHROPIC_API_KEY=sk-ant-...\nexport STEPPER_OLLAMA_CLOUD_API_KEY=...",
+            },
+            {
+                kind: 'subheading',
+                text: 'well-known 벤더 키',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper는 표준 벤더 환경 변수도 인식하므로 Claude Code(또는 다른 도구)에서 이주한 사용자가 keyless로 바로 시작할 수 있습니다. 인식되는 키에는 `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `MISTRAL_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`, `OPENROUTER_API_KEY`가 있습니다. 같은 프로바이더에 대해 `STEPPER_<PROVIDER>_API_KEY`가 있으면 well-known 변수보다 우선합니다.',
             },
             {
                 kind: 'subheading',
@@ -346,7 +367,7 @@ export const DOC_PAGES_KO: DocPage[] = [
             },
             {
                 kind: 'note',
-                text: '키 우선순위는 설정의 명시적 `apiKey` > 환경 변수 > OS 키링 순입니다. stepper를 실행하기 전에 항상 키를 설정하세요. 그렇지 않으면 어떤 레이어가 구성되지 않은 프로바이더의 모델을 요구할 때 런타임에 실패합니다.',
+                text: '키 우선순위는 설정의 명시적 `apiKey` > `STEPPER_<PROVIDER>_API_KEY` > well-known 벤더 환경 변수 > OS 키링 순입니다. stepper를 실행하기 전에 항상 키를 설정하세요. 그렇지 않으면 어떤 레이어가 구성되지 않은 프로바이더의 모델을 요구할 때 런타임에 실패합니다.',
             },
         ],
     },
@@ -478,6 +499,7 @@ export const DOC_PAGES_KO: DocPage[] = [
                     ['`Edit(**)`', '파일 편집 경로 (동일한 경로 구문).'],
                     ['`Mcp(server, tool)`', 'MCP 도구 (`tool`은 선택 사항 / 모든 도구는 `*`).'],
                     ['`Bash` (인자 없음)', '해당 도구의 모든 bash 명령.'],
+                    ['`Web*`, `*`', '도구 이름 glob — 도구 계열(`Web*`)이나 모든 도구(`*`)를 매칭.'],
                 ],
             },
             {
@@ -487,6 +509,22 @@ export const DOC_PAGES_KO: DocPage[] = [
             {
                 kind: 'note',
                 text: '복합 bash(`a && b`)는 구성 요소별로 게이팅되며(가장 제한적인 규칙이 우선), 리다이렉션 / `$()` / 백틱 / `&`가 포함된 bash 명령은 `allow`를 `ask`로 에스컬레이션합니다.',
+            },
+            {
+                kind: 'heading',
+                text: '프로세스 래퍼 strip',
+            },
+            {
+                kind: 'paragraph',
+                text: '규칙을 매칭하기 전에 stepper는 흔한 명령 래퍼를 벗겨 내부 명령까지 게이팅합니다. `sudo rm`, `timeout 5 rm`, `env X=1 rm`, `nice`, `nohup`, `xargs`는 모두 감싸진 명령으로 환원되므로, `rm`에 대한 `deny`가 래퍼로 우회되지 않고 이들 전부를 잡아냅니다.',
+            },
+            {
+                kind: 'heading',
+                text: '실행 닷파일 보호',
+            },
+            {
+                kind: 'paragraph',
+                text: '`auto` / `accept-edits` 모드에서도 실행되거나 소싱되는 설정 파일 — `.bashrc`, `.zshenv`, `.profile`, `.envrc`, `.gitconfig`, `.git/hooks/*` — 의 편집은 절대 자동 승인되지 않고 명시적 Ask로 격상됩니다(bypass 모드에서는 완전히 Deny). 시크릿 파일(`.env`, `id_rsa`, `*.pem`)은 읽기·쓰기 모두 여전히 완전 차단됩니다.',
             },
         ],
     },
@@ -517,6 +555,8 @@ export const DOC_PAGES_KO: DocPage[] = [
                     '`/rename <name>` — 현재 세션 이름 변경(세션 파일에 영속)',
                     '`/export [path]` — 세션 대화를 Markdown 전사로 저장(기본 `.stepper/exports/<id>.md`)',
                     '`/rewind [code|conversation]` — 이전 스냅샷 복원; 파일 트리/대화로 범위를 좁히거나 인자 없이 둘 다 복원',
+                    '`/copy` — 마지막 어시스턴트 응답을 OS 클립보드로 복사',
+                    '`/code-review [ref | #pr] [--fix]` — diff를 단일 패스로 리뷰(기본은 uncommitted 변경); `--fix`는 확정 findings를 적용',
                 ],
             },
             {
@@ -717,7 +757,7 @@ export const DOC_PAGES_KO: DocPage[] = [
                     '`PreToolUse` — 도구가 호출되기 전에 실행되며, 0이 아닌 종료 코드는 도구를 차단합니다',
                     '`PostToolUse` — 도구가 완료된 후에 실행됩니다',
                     '`PreCompact` — 기록이 접히기 전에 실행됩니다',
-                    '`SubagentStop` — fan-out 또는 dispatch된 sub-agent가 끝날 때 실행됩니다',
+                    '`SubagentStop` — 병렬 레이어 워커 또는 `task` / `dispatch` sub-agent가 끝날 때 실행됩니다',
                     '`Notification` — 알림 이벤트 시 실행됩니다',
                     '`Stop` — 턴이 멈출 때 실행됩니다',
                     '`SessionEnd` — 세션이 종료될 때 실행됩니다',
@@ -731,6 +771,15 @@ export const DOC_PAGES_KO: DocPage[] = [
                 kind: 'code',
                 lang: 'jsonc',
                 code: '"hooks": {\n  "PreToolUse": [{ "matcher": "write_file", "command": "echo blocked >&2; exit 2" }]\n}',
+            },
+            {
+                kind: 'paragraph',
+                text: '각 훅은 `timeout`(초)을 설정해 기본 30초 상한을 늘릴 수 있습니다 — `Stop` 훅의 포매터나 테스트 실행에 유용합니다. 훅 프로세스에는 환경 변수로 `$STEPPER_PROJECT_DIR`와 `$CLAUDE_PROJECT_DIR`(둘 다 프로젝트 루트)가 주입됩니다. `PreToolUse`를 제외한 모든 이벤트는 한 훅이 non-zero로 종료해도 매칭된 나머지 훅을 전부 실행하며, `PreToolUse`만 첫 차단 종료에서 단락됩니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"hooks": {\n  "Stop": [{ "matcher": "*", "command": "cargo fmt && cargo test", "timeout": 120 }]\n}',
             },
             {
                 kind: 'heading',
@@ -1021,6 +1070,14 @@ export const DOC_PAGES_KO: DocPage[] = [
             },
             {
                 kind: 'heading',
+                text: 'AGENTS.md base 컨텍스트',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper는 프로젝트 루트의 `./AGENTS.md`(크로스에이전트 표준)와 `~/.config/AGENTS.md`도 base 컨텍스트 후보로 인식합니다. 전체 우선순위는 `.stepper/stepper.md` → `./CLAUDE.md` → `./AGENTS.md` → `~/.stepper/stepper.md` → `~/.claude/CLAUDE.md` → `~/.config/AGENTS.md`입니다.',
+            },
+            {
+                kind: 'heading',
                 text: '세션 rename & export',
             },
             {
@@ -1050,6 +1107,27 @@ export const DOC_PAGES_KO: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: '모델은 내장 `ask_user_question` 도구로 객관식 명확화 질문을 띄울 수 있습니다. TUI는 이를 선택 오버레이로 표시하며(숫자 또는 `↑` / `↓` + `Enter`로 선택), 선택을 모델에 반환합니다. 헤드리스 / 무UI 실행에서는 "미응답"으로 진행합니다.',
+            },
+            {
+                kind: 'heading',
+                text: '마지막 응답 복사',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/copy`는 가장 최근 어시스턴트 응답을 OS 클립보드로 복사합니다 — 인자도, 에이전트 턴도 없습니다.',
+            },
+            {
+                kind: 'heading',
+                text: '코드 리뷰 커맨드',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/code-review`는 diff를 단일 패스로 리뷰합니다. 인자가 없으면 uncommitted 작업 변경을 리뷰하며(트리가 깨끗하면 `origin/main` 같은 기준 브랜치와의 diff로 폴백), git ref나 `<a>..<b>` 범위는 그 범위를, `#123`은 `gh pr diff`로 GitHub 풀 리퀘스트를 리뷰합니다. `--fix`를 붙이면 findings를 리포트한 뒤 확정된 것을 적용합니다. 약 96KB를 초과하는 diff는 파일 목록 리뷰로 폴백합니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: '/code-review\n/code-review origin/main..HEAD\n/code-review #123 --fix',
             },
         ],
     },

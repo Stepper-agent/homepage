@@ -71,22 +71,22 @@ export const ko: Dictionary = {
             {
                 title: '권한 시스템',
                 description:
-                    '기본 모드인 auto는 읽기 전용 도구를 어디서나 확인 없이 실행하고, 프로젝트 내 편집을 자동 적용하며, 프로젝트 외부 쓰기만 확인합니다. plan과 accept-edits가 모드를 보완하고, 그 위에 allow / ask / deny 규칙, 영속 approvals, 그리고 해당 위치에서만 로드되는 path-scoped 규칙이 얹힙니다. 헤드리스 -p는 기본 deny — fail-closed입니다.',
+                    '기본 모드인 auto는 읽기 전용 도구를 어디서나 확인 없이 실행하고, 프로젝트 내 편집을 자동 적용하며, 프로젝트 외부 쓰기만 확인합니다 — 다만 .bashrc·.git/hooks/* 같은 실행 닷파일 편집은 여전히 Ask로 격상됩니다. plan과 accept-edits가 모드를 보완하고, 그 위에 도구 이름 glob과 프로세스 래퍼 strip을 갖춘 allow / ask / deny 규칙, 영속 approvals, 그리고 해당 위치에서만 로드되는 path-scoped 규칙이 얹힙니다. 헤드리스 -p는 기본 deny — fail-closed입니다.',
             },
             {
                 title: 'TUI',
                 description:
-                    'ratatui 터미널 UI: 테마별로 채색된 패널 위의 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용 · effort), diff 승인 오버레이, Ctrl+R 역검색을 갖춘 명령 히스토리, ask-user-question 선택 오버레이, /settings, 13개 기본 팔레트를 갖춘 /theme 편집기, 입력으로 거르는 /models 피커, /connect, /effort, /editor(Ctrl+E), /rename · /export, /undo · /redo, 그리고 선택형 터미널 벨 알림. 또는 -p, --agent, --file, --format json으로 헤드리스 실행.',
+                    'ratatui 터미널 UI: 테마별로 채색된 패널 위의 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용 · effort), diff 승인 오버레이, Ctrl+R 역검색을 갖춘 명령 히스토리, ask-user-question 선택 오버레이, /settings, 13개 기본 팔레트를 갖춘 /theme 편집기, 입력으로 거르는 /models 피커, /connect, /effort, /editor(Ctrl+E), /rename · /export, /copy · /code-review, /undo · /redo, 그리고 선택형 터미널 벨 알림. positional 프롬프트나 stdin 파이프로 시작하거나, -p, --agent, --file, --format json으로 헤드리스 실행.',
             },
             {
                 title: '세션 & 제어',
                 description:
-                    '세션 resume, list / delete · /rename · /export 및 --fork, checkpoint + 범위 지정 /rewind(code · conversation), /undo · /redo, 자동 컨텍스트 압축과 microcompaction, 주 모델 실패 시의 fallback 모델 체인, 세션 간 자동 메모리, 9가지 라이프사이클 hooks, 조절 가능한 추론 강도, progressive disclosure 방식의 skills, 슬래시 커맨드, MCP 서버(stdio/http, 서버별 설정 + OAuth), 그리고 stepper stats를 통한 세션 간 사용량 통계.',
+                    '세션 resume, list / delete · /rename · /export 및 --fork, checkpoint + 범위 지정 /rewind(code · conversation), /undo · /redo, 자동 컨텍스트 압축과 microcompaction, 주 모델 실패 시의 fallback 모델 체인, 세션 간 자동 메모리, 9가지 라이프사이클 hooks(훅별 timeout + 프로젝트 디렉터리 env), 조절 가능한 추론 강도, progressive disclosure 방식의 skills, 슬래시 커맨드, MCP 서버(stdio/http, 서버별 설정 + OAuth), 그리고 stepper stats를 통한 세션 간 사용량 통계.',
             },
             {
                 title: '설정 & 엔터프라이즈',
                 description:
-                    '{env:} / {file:} 치환과 STEPPER_CONFIG 재정의를 지원하는 JSONC setting.json, 계층 누적 CLAUDE.md 컨텍스트, 커스텀 키바인드와 커스텀 statusline, stepper doctor 통합 점검, 헤드리스 시스템 프롬프트 재정의와 --output-schema structured outputs, stepper mcp 관리 CLI(list / get / add / remove), 명시적 HTTP(S) 프록시와 사설 CA 지원, 그리고 원격 MCP 서버를 위한 OAuth.',
+                    '{env:} / {file:} 치환과 STEPPER_CONFIG 재정의를 지원하는 JSONC setting.json, 계층 누적 CLAUDE.md 및 AGENTS.md 컨텍스트, keyless 이주를 위한 well-known 벤더 API 키, 커스텀 키바인드와 커스텀 statusline, stepper doctor 통합 점검, 헤드리스 시스템 프롬프트 재정의와 --output-schema structured outputs, stepper mcp 관리 CLI(list / get / add / remove), 명시적 HTTP(S) 프록시와 사설 CA 지원, 그리고 원격 MCP 서버를 위한 OAuth.',
             },
         ],
     },

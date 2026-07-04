@@ -69,22 +69,22 @@ export const en = {
             {
                 title: 'Permission system',
                 description:
-                    'auto (the default) runs read-only tools without a prompt anywhere and auto-applies in-project edits, asking only on out-of-project writes; plan and accept-edits round out the modes, on top of allow / ask / deny rules, persisted approvals, and path-scoped rules that load only where they apply. Headless -p is deny-by-default — fail-closed.',
+                    'auto (the default) runs read-only tools without a prompt anywhere and auto-applies in-project edits, asking only on out-of-project writes — though executable dotfiles like .bashrc and .git/hooks/* still escalate to Ask; plan and accept-edits round out the modes, on top of allow / ask / deny rules with tool-name globs and process-wrapper stripping, persisted approvals, and path-scoped rules that load only where they apply. Headless -p is deny-by-default — fail-closed.',
             },
             {
                 title: 'TUI',
                 description:
-                    'A ratatui terminal UI: live markdown on a per-theme coloured panel, a status footer (active layer · model · tokens · ctx% gauge · cost · effort), a diff-approval overlay, command history with Ctrl+R reverse search, an ask-user-question selection overlay, /settings, a /theme editor with 13 built-in palettes, a type-to-filter /models picker, /connect, /effort, /editor (Ctrl+E), /rename · /export, /undo · /redo, and optional terminal-bell notifications. Or run headless with -p, --agent, --file, and --format json.',
+                    'A ratatui terminal UI: live markdown on a per-theme coloured panel, a status footer (active layer · model · tokens · ctx% gauge · cost · effort), a diff-approval overlay, command history with Ctrl+R reverse search, an ask-user-question selection overlay, /settings, a /theme editor with 13 built-in palettes, a type-to-filter /models picker, /connect, /effort, /editor (Ctrl+E), /rename · /export, /copy · /code-review, /undo · /redo, and optional terminal-bell notifications. Start it with a positional prompt or a stdin pipe, or run headless with -p, --agent, --file, and --format json.',
             },
             {
                 title: 'Sessions & control',
                 description:
-                    'Session resume, list / delete · /rename · /export and --fork, checkpoint + scoped /rewind (code · conversation), /undo · /redo, automatic context compaction plus microcompaction, a fallback-model chain when the primary fails, auto memory across sessions, nine lifecycle hooks, adjustable reasoning effort, skills with progressive disclosure, slash commands, MCP servers (stdio/http, per-server config + OAuth), and cross-session usage stats via stepper stats.',
+                    'Session resume, list / delete · /rename · /export and --fork, checkpoint + scoped /rewind (code · conversation), /undo · /redo, automatic context compaction plus microcompaction, a fallback-model chain when the primary fails, auto memory across sessions, nine lifecycle hooks (per-hook timeouts + project-dir env), adjustable reasoning effort, skills with progressive disclosure, slash commands, MCP servers (stdio/http, per-server config + OAuth), and cross-session usage stats via stepper stats.',
             },
             {
                 title: 'Config & enterprise',
                 description:
-                    'JSONC setting.json with {env:} / {file:} substitution and STEPPER_CONFIG overrides, hierarchical CLAUDE.md context, custom keybindings and a custom statusline, a stepper doctor integrated check, headless system-prompt overrides and --output-schema structured outputs, a stepper mcp management CLI (list / get / add / remove), an explicit HTTP(S) proxy plus private-CA support, and OAuth for remote MCP servers.',
+                    'JSONC setting.json with {env:} / {file:} substitution and STEPPER_CONFIG overrides, hierarchical CLAUDE.md and AGENTS.md context, well-known vendor API keys for keyless migration, custom keybindings and a custom statusline, a stepper doctor integrated check, headless system-prompt overrides and --output-schema structured outputs, a stepper mcp management CLI (list / get / add / remove), an explicit HTTP(S) proxy plus private-CA support, and OAuth for remote MCP servers.',
             },
         ],
     },

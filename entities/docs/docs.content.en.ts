@@ -225,6 +225,19 @@ export const DOC_PAGES_EN: DocPage[] = [
                     ['--cwd <dir>', 'Run against another directory.'],
                 ],
             },
+            {
+                kind: 'heading',
+                text: 'Starting prompt & stdin',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Pass a positional prompt to open the interactive TUI already seeded with it. You can also pipe a prompt on stdin — `cat task.md | stepper` (or `| stepper -p` for a headless one-shot); `-p` reads stdin as its prompt even when given no value.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: 'stepper "fix the failing test"\ncat task.md | stepper\ncat task.md | stepper -p',
+            },
         ],
     },
     {
@@ -305,7 +318,7 @@ export const DOC_PAGES_EN: DocPage[] = [
             },
             {
                 kind: 'paragraph',
-                text: 'stepper looks for API keys in this order: explicit `apiKey` in config → environment variable → OS keyring. The first match wins.',
+                text: 'stepper looks for API keys in this order: explicit `apiKey` in config → the `STEPPER_<PROVIDER>_API_KEY` env var → a well-known vendor env var (e.g. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) → the OS keyring. The first match wins.',
             },
             {
                 kind: 'subheading',
@@ -319,6 +332,14 @@ export const DOC_PAGES_EN: DocPage[] = [
                 kind: 'code',
                 lang: 'sh',
                 code: "# Env var: STEPPER_<PROVIDER>_API_KEY  (provider uppercased, '-' → '_')\nexport STEPPER_ANTHROPIC_API_KEY=sk-ant-...\nexport STEPPER_OLLAMA_CLOUD_API_KEY=...",
+            },
+            {
+                kind: 'subheading',
+                text: 'Well-known vendor keys',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper also recognizes the standard vendor environment variables, so anyone migrating from Claude Code (or another tool) can start keyless. Recognized keys include `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `MISTRAL_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`, and `OPENROUTER_API_KEY`. A matching `STEPPER_<PROVIDER>_API_KEY` still takes precedence over the well-known variable for the same provider.',
             },
             {
                 kind: 'subheading',
@@ -356,7 +377,7 @@ export const DOC_PAGES_EN: DocPage[] = [
             },
             {
                 kind: 'note',
-                text: 'Key precedence is explicit config `apiKey` > env var > OS keyring. Always set keys before running stepper, or it will fail at runtime when a layer requires a model from an unconfigured provider.',
+                text: 'Key precedence is explicit config `apiKey` > `STEPPER_<PROVIDER>_API_KEY` > well-known vendor env var > OS keyring. Always set keys before running stepper, or it will fail at runtime when a layer requires a model from an unconfigured provider.',
             },
         ],
     },
@@ -489,6 +510,7 @@ export const DOC_PAGES_EN: DocPage[] = [
                     ['`Edit(**)`', 'file edit paths (same path syntax).'],
                     ['`Mcp(server, tool)`', 'an MCP tool (`tool` optional / `*` for any).'],
                     ['`Bash` (bare)', 'any bash command for that tool.'],
+                    ['`Web*`, `*`', 'a tool-name glob — match a family of tools (`Web*`) or every tool (`*`).'],
                 ],
             },
             {
@@ -498,6 +520,22 @@ export const DOC_PAGES_EN: DocPage[] = [
             {
                 kind: 'note',
                 text: 'Compound bash (`a && b`) is gated per-component (most restrictive wins); a bash command with redirection / `$()` / backticks / `&` escalates an `allow` to `ask`.',
+            },
+            {
+                kind: 'heading',
+                text: 'Process-wrapper stripping',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Before a rule is matched, stepper peels off common command wrappers so the inner command is still gated. `sudo rm`, `timeout 5 rm`, `env X=1 rm`, `nice`, `nohup`, and `xargs` all resolve down to the wrapped command — a `deny` on `rm` catches every one of them instead of being bypassed by the wrapper.',
+            },
+            {
+                kind: 'heading',
+                text: 'Safer automatic edits',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Even in `auto` / `accept-edits` mode, edits to config files that get executed or sourced — `.bashrc`, `.zshenv`, `.profile`, `.envrc`, `.gitconfig`, and `.git/hooks/*` — are never auto-approved; they escalate to an explicit Ask (and are denied outright in bypass mode). Secret files (`.env`, `id_rsa`, `*.pem`) stay fully blocked from both reads and writes.',
             },
         ],
     },
@@ -529,6 +567,8 @@ export const DOC_PAGES_EN: DocPage[] = [
                     '`/rename <name>` — rename the current session (persisted to its session file)',
                     '`/export [path]` — write the session conversation to a Markdown transcript (defaults to `.stepper/exports/<id>.md`)',
                     '`/rewind [code|conversation]` — restore a prior snapshot; scope to the file tree or the conversation, or both with no argument',
+                    '`/copy` — copy the last assistant response to the OS clipboard',
+                    '`/code-review [ref | #pr] [--fix]` — review a diff in a single pass (uncommitted changes by default); `--fix` applies the confirmed findings',
                 ],
             },
             {
@@ -729,7 +769,7 @@ export const DOC_PAGES_EN: DocPage[] = [
                     '`PreToolUse` — runs before a tool is called; non-zero exit blocks the tool',
                     '`PostToolUse` — runs after a tool completes',
                     '`PreCompact` — runs before history is folded',
-                    '`SubagentStop` — runs when a fan-out or dispatched sub-agent finishes',
+                    '`SubagentStop` — runs when a parallel-layer worker or a `task` / `dispatch` sub-agent finishes',
                     '`Notification` — runs on a notification event',
                     '`Stop` — runs when a turn stops',
                     '`SessionEnd` — runs when a session ends',
@@ -743,6 +783,15 @@ export const DOC_PAGES_EN: DocPage[] = [
                 kind: 'code',
                 lang: 'jsonc',
                 code: '"hooks": {\n  "PreToolUse": [{ "matcher": "write_file", "command": "echo blocked >&2; exit 2" }]\n}',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Each hook may set a `timeout` (in seconds) to raise the default 30-second cap — handy for a formatter or test run in a `Stop` hook. Hook processes receive `$STEPPER_PROJECT_DIR` and `$CLAUDE_PROJECT_DIR` (both the project root) in their environment. For every event except `PreToolUse`, all matching hooks run even when one exits non-zero; only `PreToolUse` short-circuits on the first blocking exit.',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '"hooks": {\n  "Stop": [{ "matcher": "*", "command": "cargo fmt && cargo test", "timeout": 120 }]\n}',
             },
             {
                 kind: 'heading',
@@ -1033,6 +1082,14 @@ export const DOC_PAGES_EN: DocPage[] = [
             },
             {
                 kind: 'heading',
+                text: 'AGENTS.md base context',
+            },
+            {
+                kind: 'paragraph',
+                text: 'stepper also picks up `./AGENTS.md` (the cross-agent standard) at the project root and `~/.config/AGENTS.md` as base-context candidates. The full resolution order is `.stepper/stepper.md` → `./CLAUDE.md` → `./AGENTS.md` → `~/.stepper/stepper.md` → `~/.claude/CLAUDE.md` → `~/.config/AGENTS.md`.',
+            },
+            {
+                kind: 'heading',
                 text: 'Rename & export sessions',
             },
             {
@@ -1062,6 +1119,27 @@ export const DOC_PAGES_EN: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: 'The model can raise a multiple-choice clarifying question through the built-in `ask_user_question` tool. The TUI shows it as a selection overlay (pick with a number or `↑` / `↓` + `Enter`) and returns the choice to the model. In headless / UI-less runs it proceeds as "unanswered".',
+            },
+            {
+                kind: 'heading',
+                text: 'Copy the last response',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/copy` copies the most recent assistant response to your OS clipboard — no argument, no agent turn.',
+            },
+            {
+                kind: 'heading',
+                text: 'Code review command',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/code-review` reviews a diff in a single pass. With no argument it reviews the uncommitted working changes (falling back to the diff against a base branch such as `origin/main` when the tree is clean); a git ref or `<a>..<b>` range reviews that range, and `#123` reviews a GitHub pull request via `gh pr diff`. Add `--fix` to report the findings and then apply the confirmed ones. Diffs larger than ~96 KB fall back to a file-list review.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: '/code-review\n/code-review origin/main..HEAD\n/code-review #123 --fix',
             },
         ],
     },
