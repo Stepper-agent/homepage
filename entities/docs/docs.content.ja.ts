@@ -371,11 +371,19 @@ export const DOC_PAGES_JA: DocPage[] = [
             },
             {
                 kind: 'subheading',
+                text: 'OpenAI の認証方式',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/connect openai` は無条件にキーを尋ねる代わりに**認証方式ピッカー**で終わります: **api key**（プラットフォームキー）、**ChatGPT OAuth**（サブスクリプションで使用 — エントリが `kind: openai-responses` + `auth: codex-oauth` に切り替わり、`stepper auth login --codex` で 1 回サインイン）、**access token**（ゲートウェイ・プロキシ向けの bearer/OAuth トークン）。bearer を選ぶと以前の OAuth モードは自動解除され、貼り付けた資格情報が実際に使われます。',
+            },
+            {
+                kind: 'subheading',
                 text: 'カスタムプロバイダー',
             },
             {
                 kind: 'paragraph',
-                text: 'カタログにないエンドポイントでも stepper に接続できます — ローカル LLM サーバー、社内ゲートウェイ、OpenAI 互換プロキシなど。TUI の `/connect` は常に先頭行として **add custom provider** を提供し（models.dev に到達できないときも）、名前・base URL（例: `https://localhost:11111/v1`）・タイプ — `openai`（OpenAI 互換 chat/completions）、`claude`（Anthropic Messages）、`custom` — を入力するフォームが開きます。API タイプはプロバイダーをライブで登録して `setting.json` に永続化し、キーの入力を求めます（Esc でスキップ — ローカルサーバーは通常キー不要）。`custom` タイプは `openai-compat` として開始し、代わりに直接編集すべき `setting.json` のエントリを案内します。`kind` には `openai-compat` | `anthropic` | `openai-responses` が使えます:',
+                text: 'カタログにないエンドポイントでも stepper に接続できます — ローカル LLM サーバー、社内ゲートウェイ、OpenAI 互換プロキシなど。TUI の `/connect` は**接続済みプロバイダーを最上部に `connected` 表示**し、常に先頭行として **add custom provider** を提供します（models.dev に到達できないときも）。名前・base URL（例: `https://localhost:11111/v1`）・タイプ — `openai`（OpenAI 互換 chat/completions）、`claude`（Anthropic Messages）、`custom` — を入力するフォームが開きます。保存前にエンドポイントを**プローブ**します: 到達不能、または models ルートが 404（たいてい `/v1` の欠落）なら入力値が保持されたフォームに戻り、401/403 は「キーが必要」の注記付きで通過します。API タイプはプロバイダーをライブで登録して `setting.json` に永続化し、キーの入力を求めます（Esc でスキップ — ローカルサーバーは通常キー不要）。`custom` タイプは `openai-compat` として開始し、代わりに直接編集すべき `setting.json` のエントリを案内します。`kind` には `openai-compat` | `anthropic` | `openai-responses` が使えます:',
             },
             {
                 kind: 'code',

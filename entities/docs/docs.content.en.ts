@@ -377,11 +377,19 @@ export const DOC_PAGES_EN: DocPage[] = [
             },
             {
                 kind: 'subheading',
+                text: 'OpenAI auth methods',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/connect openai` ends in an auth-method picker instead of a blind key prompt: **api key** (platform key), **ChatGPT OAuth** (use your ChatGPT subscription — the entry switches to `kind: openai-responses` + `auth: codex-oauth`; sign in once with `stepper auth login --codex`), or **access token** (a bearer/OAuth token for gateways and proxies). The bearer choices clear any previous OAuth mode so the pasted credential is actually used.',
+            },
+            {
+                kind: 'subheading',
                 text: 'Custom providers',
             },
             {
                 kind: 'paragraph',
-                text: "Point stepper at any endpoint the catalog doesn't know — a local LLM server, a corporate gateway, an OpenAI-compatible proxy. In the TUI, `/connect` always offers **add custom provider** as its first row (even when models.dev is unreachable): fill in a name, the base URL (e.g. `https://localhost:11111/v1`), and a type — `openai` (OpenAI-compatible chat/completions), `claude` (Anthropic Messages), or `custom`. The API types register the provider live, persist it to `setting.json`, and prompt for a key (Esc skips it — local servers are usually keyless); the `custom` type starts as `openai-compat` and instead points you at the `setting.json` entry to hand-edit the spec, where `kind` accepts `openai-compat` | `anthropic` | `openai-responses`:",
+                text: 'Point stepper at any endpoint the catalog doesn\'t know — a local LLM server, a corporate gateway, an OpenAI-compatible proxy. In the TUI, `/connect` opens with your already-connected providers on top (marked `connected`) and always offers **add custom provider** as its first row (even when models.dev is unreachable): fill in a name, the base URL (e.g. `https://localhost:11111/v1`), and a type — `openai` (OpenAI-compatible chat/completions), `claude` (Anthropic Messages), or `custom`. Before anything is saved the endpoint is probed: an unreachable host or a 404 on its models route (usually a missing `/v1`) bounces you back into the prefilled form, while 401/403 passes with a "needs an API key" note. The API types then register the provider live, persist it to `setting.json`, and prompt for a key (Esc skips it — local servers are usually keyless); the `custom` type starts as `openai-compat` and instead points you at the `setting.json` entry to hand-edit the spec, where `kind` accepts `openai-compat` | `anthropic` | `openai-responses`:',
             },
             {
                 kind: 'code',

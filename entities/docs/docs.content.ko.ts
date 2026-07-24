@@ -367,11 +367,19 @@ export const DOC_PAGES_KO: DocPage[] = [
             },
             {
                 kind: 'subheading',
+                text: 'OpenAI 인증 방식',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/connect openai`는 무조건 키를 묻는 대신 **인증 방식 피커**로 끝납니다: **api key**(플랫폼 키), **ChatGPT OAuth**(구독으로 사용 — 항목이 `kind: openai-responses` + `auth: codex-oauth`로 전환되며 `stepper auth login --codex`로 1회 로그인), **access token**(게이트웨이·프록시용 bearer/OAuth 토큰). bearer 선택 시 이전 OAuth 모드는 자동 해제되어 붙여넣은 자격 증명이 실제로 사용됩니다.',
+            },
+            {
+                kind: 'subheading',
                 text: '커스텀 프로바이더',
             },
             {
                 kind: 'paragraph',
-                text: '카탈로그에 없는 어떤 엔드포인트든 stepper에 연결할 수 있습니다 — 로컬 LLM 서버, 사내 게이트웨이, OpenAI 호환 프록시 등. TUI에서 `/connect`는 항상 첫 행으로 **add custom provider**를 제공하며(models.dev에 접속할 수 없을 때도), 이름과 base URL(예: `https://localhost:11111/v1`), 그리고 타입 — `openai`(OpenAI 호환 chat/completions), `claude`(Anthropic Messages), `custom` — 을 입력하는 폼이 열립니다. API 타입은 프로바이더를 라이브로 등록하고 `setting.json`에 영속한 뒤 키를 묻습니다(Esc로 생략 — 로컬 서버는 보통 키가 필요 없습니다). `custom` 타입은 `openai-compat`으로 시작하되, 대신 직접 편집할 `setting.json` 항목을 안내합니다. `kind`에는 `openai-compat` | `anthropic` | `openai-responses`를 쓸 수 있습니다:',
+                text: '카탈로그에 없는 어떤 엔드포인트든 stepper에 연결할 수 있습니다 — 로컬 LLM 서버, 사내 게이트웨이, OpenAI 호환 프록시 등. TUI에서 `/connect`는 **이미 연결된 프로바이더를 최상단에 `connected`로 표시**하고, 항상 첫 행으로 **add custom provider**를 제공합니다(models.dev에 접속할 수 없을 때도). 이름과 base URL(예: `https://localhost:11111/v1`), 그리고 타입 — `openai`(OpenAI 호환 chat/completions), `claude`(Anthropic Messages), `custom` — 을 입력하는 폼이 열립니다. 저장 전에 엔드포인트를 **프로브**합니다: 도달 불가하거나 models 경로가 404(대개 `/v1` 누락)면 입력값이 채워진 폼으로 되돌아오고, 401/403은 "키 필요" 안내와 함께 통과합니다. API 타입은 프로바이더를 라이브로 등록하고 `setting.json`에 영속한 뒤 키를 묻습니다(Esc로 생략 — 로컬 서버는 보통 키가 필요 없습니다). `custom` 타입은 `openai-compat`으로 시작하되, 대신 직접 편집할 `setting.json` 항목을 안내합니다. `kind`에는 `openai-compat` | `anthropic` | `openai-responses`를 쓸 수 있습니다:',
             },
             {
                 kind: 'code',
