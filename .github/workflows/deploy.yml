@@ -5,14 +5,13 @@ on:
         branches: [prod]
     # A stepper release triggers this via the API with `ref: prod` (from stepper's
     # release.yml) for an instant rebuild, so the "latest release" badge + update
-    # log reflect the new version right away. `workflow_dispatch` keeps the run on
-    # prod (the only branch the github-pages environment allows to deploy); a
-    # `repository_dispatch` would run on the default branch (dev) and be rejected.
+    # log reflect the new version right away.
     workflow_dispatch:
     schedule:
         # Static export has no ISR — rebuild daily so the "latest release" badge and
         # the update log (regenerated from the GitHub API at build) stay current even
-        # without a release ping.
+        # without a release ping. Scheduled runs always fire on the default branch
+        # (dev); the `redispatch` job bridges them onto prod.
         - cron: '0 6 * * *'
 
 permissions:
@@ -25,7 +24,25 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
+    # The github-pages environment only allows deploys from prod, but the daily
+    # cron always fires on the default branch (dev) and a manual dispatch can pick
+    # any ref. Instead of failing at the deploy gate, any non-prod run re-runs
+    # this workflow on prod and does nothing else. workflow_dispatch runs created
+    # with the built-in GITHUB_TOKEN are exempt from the recursion guard, and the
+    # spawned prod run takes the build path below — so this cannot loop.
+    redispatch:
+        if: github.ref_name != 'prod'
+        runs-on: ubuntu-latest
+        permissions:
+            actions: write
+        steps:
+            - name: Re-run this workflow on prod
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: gh workflow run deploy.yml --repo '${{ github.repository }}' --ref prod
+
     build:
+        if: github.ref_name == 'prod'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
