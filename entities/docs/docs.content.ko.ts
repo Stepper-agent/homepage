@@ -366,6 +366,23 @@ export const DOC_PAGES_KO: DocPage[] = [
                 text: 'localhost에서 동작하는 oMLX는 보통 API 키가 필요 없어, 외부 의존성 없는 로컬 개발에 이상적입니다.',
             },
             {
+                kind: 'subheading',
+                text: '커스텀 프로바이더',
+            },
+            {
+                kind: 'paragraph',
+                text: '카탈로그에 없는 어떤 엔드포인트든 stepper에 연결할 수 있습니다 — 로컬 LLM 서버, 사내 게이트웨이, OpenAI 호환 프록시 등. TUI에서 `/connect`는 항상 첫 행으로 **add custom provider**를 제공하며(models.dev에 접속할 수 없을 때도), 이름과 base URL(예: `https://localhost:11111/v1`), 그리고 타입 — `openai`(OpenAI 호환 chat/completions), `claude`(Anthropic Messages), `custom` — 을 입력하는 폼이 열립니다. API 타입은 프로바이더를 라이브로 등록하고 `setting.json`에 영속한 뒤 키를 묻습니다(Esc로 생략 — 로컬 서버는 보통 키가 필요 없습니다). `custom` 타입은 `openai-compat`으로 시작하되, 대신 직접 편집할 `setting.json` 항목을 안내합니다. `kind`에는 `openai-compat` | `anthropic` | `openai-responses`를 쓸 수 있습니다:',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '{\n    "providers": {\n        "my-local": {\n            "kind": "openai-compat",                  // or anthropic | openai-responses\n            "baseUrl": "https://localhost:11111/v1",\n            "apiKey": "{env:MY_LOCAL_KEY}",           // optional — literal or {env:VAR}\n            "defaultModel": "my-model"\n        }\n    }\n}',
+            },
+            {
+                kind: 'paragraph',
+                text: '기존 이름으로 폼을 다시 제출하면 `kind`와 `baseUrl`만 갱신되고 키·기본 모델·모델별 override는 보존됩니다. 키는 나중에 `/login <name>`으로 저장할 수 있습니다.',
+            },
+            {
                 kind: 'note',
                 text: '키 우선순위는 설정의 명시적 `apiKey` > `STEPPER_<PROVIDER>_API_KEY` > well-known 벤더 환경 변수 > OS 키링 순입니다. stepper를 실행하기 전에 항상 키를 설정하세요. 그렇지 않으면 어떤 레이어가 구성되지 않은 프로바이더의 모델을 요구할 때 런타임에 실패합니다.',
             },
@@ -457,6 +474,14 @@ export const DOC_PAGES_KO: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: '`step: ["plan", "implement", "test"]`에서 `implement`에 `parallel:`이 표시된 경우, `plan` 레이어는 요약을 출력하고 `assign_tasks`를 호출하여 작업을 구현 하위 작업으로 나눕니다. 각 하위 작업은 전체 레이어 구성을 가진 하나의 `implement` 워커를 생성합니다. 모든 워커가 완료되면 `test`는 모든 워커 변경 사항이 병합된 요약을 받습니다. 모델이 호출할 수 있는 `dispatch` 도구(`dispatch.enabled: true`인 경우)는 서브에이전트에 동일한 워커 패널을 사용합니다.',
+            },
+            {
+                kind: 'heading',
+                text: '레이어 만들기',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/layer <name>`(빈 레이어 하나)이나 `/scaffold-layer`(기본 plan → implement → review 파이프라인)로 직접 스캐폴딩할 수도 있고, 원하는 것을 설명해 모델에게 맡길 수도 있습니다: `/create-layer implement 뒤에 security-review 레이어 추가`는 이 페이지의 레이어 레퍼런스와 현재 `setting.json`·레이어 목록을 실은 에이전트 턴을 실행해, 모델이 레이어 파일을 작성하고 요청한 `step` 위치에 이름을 삽입합니다. 모든 쓰기는 권한 게이트를 그대로 거치며, 레이어는 다음 실행 시 로드됩니다.',
             },
         ],
     },
@@ -1128,6 +1153,35 @@ export const DOC_PAGES_KO: DocPage[] = [
                 kind: 'code',
                 lang: 'sh',
                 code: '/code-review\n/code-review origin/main..HEAD\n/code-review #123 --fix',
+            },
+            {
+                kind: 'heading',
+                text: '전체 높이 터미널 UI',
+            },
+            {
+                kind: 'paragraph',
+                text: 'TUI가 터미널 전체를 차지하고 창 크기 조절·전체화면 전환을 실시간으로 따라갑니다. 완료된 턴은 계속 터미널의 native scrollback에 커밋되므로 — alternate screen이 아니라서 — 마우스 휠 스크롤과 텍스트 선택이 그대로 동작합니다. 턴의 마지막 응답은 읽는 동안 화면에 유지되다가 다음 프롬프트와 함께 커밋되며, 종료 시 패널이 정리되어 전체 대화가 scrollback에 정확히 한 번 남습니다.',
+            },
+            {
+                kind: 'heading',
+                text: '커스텀 프로바이더 연결',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/connect` 피커의 첫 행이 **add custom provider**입니다: 작은 폼(이름 · base URL · 타입)으로 로컬 LLM 서버나 OpenAI/Anthropic 호환 엔드포인트를 설정 파일 편집 없이 등록합니다. `custom` 타입은 와이어 포맷을 조정할 정확한 `setting.json` 항목을 안내합니다. 자세한 내용은 프로바이더 & 키 문서를 참고하세요.',
+            },
+            {
+                kind: 'heading',
+                text: '레이어 작성 커맨드',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/create-layer <설명>`은 모델이 파이프라인 레이어를 대신 작성하게 합니다: 임베드된 레이어 레퍼런스와 현재 유효한 파이프라인 설정을 실은 턴이 실행되어, `.stepper/layer/<name>/index.md`를 작성하고 요청한 위치에 `step` 배열 항목을 배치한 뒤 최종 순서를 보고합니다 — 전부 일반 권한 게이트를 거칩니다.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: '/create-layer implement 뒤에 security-review 레이어 추가',
             },
         ],
     },

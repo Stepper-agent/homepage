@@ -370,6 +370,23 @@ export const DOC_PAGES_JA: DocPage[] = [
                 text: 'localhostで動作するoMLXは通常APIキーが不要で、外部依存のないローカル開発に最適です。',
             },
             {
+                kind: 'subheading',
+                text: 'カスタムプロバイダー',
+            },
+            {
+                kind: 'paragraph',
+                text: 'カタログにないエンドポイントでも stepper に接続できます — ローカル LLM サーバー、社内ゲートウェイ、OpenAI 互換プロキシなど。TUI の `/connect` は常に先頭行として **add custom provider** を提供し（models.dev に到達できないときも）、名前・base URL（例: `https://localhost:11111/v1`）・タイプ — `openai`（OpenAI 互換 chat/completions）、`claude`（Anthropic Messages）、`custom` — を入力するフォームが開きます。API タイプはプロバイダーをライブで登録して `setting.json` に永続化し、キーの入力を求めます（Esc でスキップ — ローカルサーバーは通常キー不要）。`custom` タイプは `openai-compat` として開始し、代わりに直接編集すべき `setting.json` のエントリを案内します。`kind` には `openai-compat` | `anthropic` | `openai-responses` が使えます:',
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '{\n    "providers": {\n        "my-local": {\n            "kind": "openai-compat",                  // or anthropic | openai-responses\n            "baseUrl": "https://localhost:11111/v1",\n            "apiKey": "{env:MY_LOCAL_KEY}",           // optional — literal or {env:VAR}\n            "defaultModel": "my-model"\n        }\n    }\n}',
+            },
+            {
+                kind: 'paragraph',
+                text: '既存の名前でフォームを再送信すると `kind` と `baseUrl` だけが更新され、キー・デフォルトモデル・モデル別 override は保持されます。キーは後から `/login <name>` で保存できます。',
+            },
+            {
                 kind: 'note',
                 text: 'キーの優先順位は設定内の明示的な`apiKey` > `STEPPER_<PROVIDER>_API_KEY` > well-known なベンダー環境変数 > OSキーリングの順です。stepperを実行する前に必ずキーを設定してください。そうしないと、いずれかのレイヤーが未構成のプロバイダーのモデルを要求した際に実行時に失敗します。',
             },
@@ -462,6 +479,14 @@ export const DOC_PAGES_JA: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: '`step: ["plan", "implement", "test"]` で `implement` に `parallel:` が指定されている場合、`plan` レイヤーは要約を出力し、`assign_tasks` を呼び出して作業を実装サブタスクに分割します。各サブタスクは完全なレイヤー構成を持つ 1 つの `implement` ワーカーを起動します。すべてのワーカーが完了すると、`test` はすべてのワーカーの変更がマージされた要約を受け取ります。モデルから呼び出し可能な `dispatch` ツール（`dispatch.enabled: true` の場合）は、そのサブエージェントに同じワーカーパネルを使用します。',
+            },
+            {
+                kind: 'heading',
+                text: 'レイヤーの作成',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/layer <name>`（空のレイヤーを 1 つ）や `/scaffold-layer`（デフォルトの plan → implement → review パイプライン）で手動スキャフォールドすることも、やりたいことを説明してモデルに任せることもできます: `/create-layer implement の後に security-review レイヤーを追加` は、このページのレイヤーリファレンスと現在の `setting.json`・レイヤー一覧を載せたエージェントターンを実行し、モデルがレイヤーファイルを作成して要求された `step` の位置に名前を挿入します。すべての書き込みは権限ゲートを通り、レイヤーは次回起動時にロードされます。',
             },
         ],
     },
@@ -1134,6 +1159,35 @@ export const DOC_PAGES_JA: DocPage[] = [
                 kind: 'code',
                 lang: 'sh',
                 code: '/code-review\n/code-review origin/main..HEAD\n/code-review #123 --fix',
+            },
+            {
+                kind: 'heading',
+                text: 'フルハイトのターミナル UI',
+            },
+            {
+                kind: 'paragraph',
+                text: 'TUI がターミナル全体を占め、ウィンドウのリサイズやフルスクリーン切り替えにリアルタイムで追従します。完了したターンはターミナルの native scrollback にコミットされ続けるため — alternate screen ではないので — マウスホイールのスクロールもテキスト選択もそのまま使えます。ターンの最後の応答は読んでいる間画面に保持され、次のプロンプトとともにコミットされます。終了時にはパネルが片付き、全トランスクリプトが scrollback にちょうど 1 回残ります。',
+            },
+            {
+                kind: 'heading',
+                text: 'カスタムプロバイダー接続',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/connect` ピッカーの先頭行が **add custom provider** です: 小さなフォーム（名前 · base URL · タイプ）で、ローカル LLM サーバーや OpenAI/Anthropic 互換のエンドポイントを設定ファイルを編集せずに登録できます。`custom` タイプはワイヤフォーマットを調整するための正確な `setting.json` エントリを案内します。詳細はプロバイダー & キーのドキュメントを参照してください。',
+            },
+            {
+                kind: 'heading',
+                text: 'レイヤー作成コマンド',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/create-layer <説明>` はモデルにパイプラインレイヤーの作成を任せます: 埋め込みのレイヤーリファレンスと現在有効なパイプライン設定を載せたターンが実行され、`.stepper/layer/<name>/index.md` を作成し、要求された位置に `step` 配列の項目を配置して最終順序を報告します — すべて通常の権限ゲートを通ります。',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: '/create-layer implement の後に security-review レイヤーを追加',
             },
         ],
     },

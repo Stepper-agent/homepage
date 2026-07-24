@@ -54,12 +54,12 @@ export const en = {
             {
                 title: 'Layered pipeline',
                 description:
-                    'Each step is an independent sub-agent with its own model, tools, and system prompt. Sequential by default — mark a layer parallel: true to fan out one worker per subtask. Dispatch a named sub-agent inline with #agent or the task tool.',
+                    'Each step is an independent sub-agent with its own model, tools, and system prompt. Sequential by default — mark a layer parallel: true to fan out one worker per subtask. Dispatch a named sub-agent inline with #agent or the task tool, or have the model author and place a new layer for you with /create-layer.',
             },
             {
                 title: 'Multi-provider',
                 description:
-                    'Anthropic, OpenAI, ollama-cloud, oMLX (local Apple Silicon MLX), and Codex (ChatGPT OAuth). /connect discovers and adds any provider from the models.dev catalog (unsupported entries are shown disabled so a key is never mis-routed); every layer picks its own provider and model, with optional per-model context/pricing overrides.',
+                    'Anthropic, OpenAI, ollama-cloud, oMLX (local Apple Silicon MLX), and Codex (ChatGPT OAuth). /connect discovers and adds any provider from the models.dev catalog (unsupported entries are shown disabled so a key is never mis-routed), and its add-custom-provider form registers your own endpoint — a local LLM server or any OpenAI-/Anthropic-compatible gateway — in seconds; every layer picks its own provider and model, with optional per-model context/pricing overrides.',
             },
             {
                 title: 'Editing & code intelligence',
@@ -74,7 +74,7 @@ export const en = {
             {
                 title: 'TUI',
                 description:
-                    'A ratatui terminal UI: live markdown on a per-theme coloured panel, a status footer (active layer · model · tokens · ctx% gauge · cost · effort), a diff-approval overlay, command history with Ctrl+R reverse search, an ask-user-question selection overlay, /settings, a /theme editor with 13 built-in palettes, a type-to-filter /models picker, /connect, /effort, /editor (Ctrl+E), /rename · /export, /copy · /code-review, /undo · /redo, and optional terminal-bell notifications. Start it with a positional prompt or a stdin pipe, or run headless with -p, --agent, --file, and --format json.',
+                    'A ratatui terminal UI on a full-height viewport that tracks resizes and fullscreen while finished turns land in native scrollback: live markdown on a per-theme coloured panel, a status footer (active layer · model · tokens · ctx% gauge · cost · effort), a diff-approval overlay, command history with Ctrl+R reverse search, an ask-user-question selection overlay, /settings, a /theme editor with 13 built-in palettes, a type-to-filter /models picker, /connect, /effort, /editor (Ctrl+E), /rename · /export, /copy · /code-review, /undo · /redo, and optional terminal-bell notifications. Start it with a positional prompt or a stdin pipe, or run headless with -p, --agent, --file, and --format json.',
             },
             {
                 title: 'Sessions & control',

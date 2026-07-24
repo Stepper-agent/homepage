@@ -376,6 +376,23 @@ export const DOC_PAGES_EN: DocPage[] = [
                 text: 'oMLX on localhost usually needs no API key, making it ideal for local development without external dependencies.',
             },
             {
+                kind: 'subheading',
+                text: 'Custom providers',
+            },
+            {
+                kind: 'paragraph',
+                text: "Point stepper at any endpoint the catalog doesn't know — a local LLM server, a corporate gateway, an OpenAI-compatible proxy. In the TUI, `/connect` always offers **add custom provider** as its first row (even when models.dev is unreachable): fill in a name, the base URL (e.g. `https://localhost:11111/v1`), and a type — `openai` (OpenAI-compatible chat/completions), `claude` (Anthropic Messages), or `custom`. The API types register the provider live, persist it to `setting.json`, and prompt for a key (Esc skips it — local servers are usually keyless); the `custom` type starts as `openai-compat` and instead points you at the `setting.json` entry to hand-edit the spec, where `kind` accepts `openai-compat` | `anthropic` | `openai-responses`:",
+            },
+            {
+                kind: 'code',
+                lang: 'jsonc',
+                code: '{\n    "providers": {\n        "my-local": {\n            "kind": "openai-compat",                  // or anthropic | openai-responses\n            "baseUrl": "https://localhost:11111/v1",\n            "apiKey": "{env:MY_LOCAL_KEY}",           // optional — literal or {env:VAR}\n            "defaultModel": "my-model"\n        }\n    }\n}',
+            },
+            {
+                kind: 'paragraph',
+                text: 'Re-submitting the form for an existing name updates only `kind` and `baseUrl`, preserving your key, default model, and per-model overrides; `/login <name>` stores its key later.',
+            },
+            {
                 kind: 'note',
                 text: 'Key precedence is explicit config `apiKey` > `STEPPER_<PROVIDER>_API_KEY` > well-known vendor env var > OS keyring. Always set keys before running stepper, or it will fail at runtime when a layer requires a model from an unconfigured provider.',
             },
@@ -468,6 +485,14 @@ export const DOC_PAGES_EN: DocPage[] = [
             {
                 kind: 'paragraph',
                 text: 'With `step: ["plan", "implement", "test"]` and `implement` marked `parallel:` The `plan` layer outputs its summary and calls `assign_tasks` to split the work into implementation subtasks. Each subtask spins up one `implement` worker with the full layer config. Once all workers complete, `test` receives the merged summary of all worker changes. The model-callable `dispatch` tool (when `dispatch.enabled: true`) uses the same worker panel for its sub-agents.',
+            },
+            {
+                kind: 'heading',
+                text: 'Creating layers',
+            },
+            {
+                kind: 'paragraph',
+                text: "Scaffold by hand with `/layer <name>` (one empty layer) or `/scaffold-layer` (a default plan → implement → review pipeline) — or describe what you want and let the model do it: `/create-layer a security-review layer after implement` runs an agent turn seeded with this page's layer reference plus your current `setting.json` and layer list, so the model writes the layer file and inserts the name at the requested `step` position. Every write stays permission-gated, and layers load on the next launch.",
             },
         ],
     },
@@ -1140,6 +1165,35 @@ export const DOC_PAGES_EN: DocPage[] = [
                 kind: 'code',
                 lang: 'sh',
                 code: '/code-review\n/code-review origin/main..HEAD\n/code-review #123 --fix',
+            },
+            {
+                kind: 'heading',
+                text: 'Full-height terminal UI',
+            },
+            {
+                kind: 'paragraph',
+                text: "The TUI spans the whole terminal and follows window resizes and fullscreen live, while finished turns keep committing to the terminal's native scrollback — no alternate screen, so the mouse wheel and text selection keep working. The final reply of a turn stays on screen while you read it and is committed with your next prompt; on exit the panel clears, leaving the full transcript in scrollback exactly once.",
+            },
+            {
+                kind: 'heading',
+                text: 'Custom provider connect',
+            },
+            {
+                kind: 'paragraph',
+                text: 'The `/connect` picker leads with **add custom provider**: a small form (name · base URL · type) registers a local LLM server or any OpenAI-/Anthropic-compatible endpoint without hand-editing config — and the `custom` type points you at the exact `setting.json` entry for tuning the wire format. See Providers & keys for details.',
+            },
+            {
+                kind: 'heading',
+                text: 'Layer authoring command',
+            },
+            {
+                kind: 'paragraph',
+                text: '`/create-layer <describe it>` has the model author a pipeline layer for you: the turn is seeded with the embedded layer reference and your effective pipeline config, so it writes `.stepper/layer/<name>/index.md`, places the name in the `step` array where you asked, and reports the final order — all through the normal permission gates.',
+            },
+            {
+                kind: 'code',
+                lang: 'sh',
+                code: '/create-layer a security-review layer after implement',
             },
         ],
     },

@@ -57,12 +57,12 @@ export const ja: Dictionary = {
             {
                 title: 'レイヤーパイプライン',
                 description:
-                    '各 step は独自のモデル・ツール・システムプロンプトを持つ独立したサブエージェントです。デフォルトは順次実行で、レイヤーに parallel: true を指定するとサブタスクごとに 1 ワーカーへ fan-out します。名前付きサブエージェントは #agent または task ツールでインラインに呼び出せます。',
+                    '各 step は独自のモデル・ツール・システムプロンプトを持つ独立したサブエージェントです。デフォルトは順次実行で、レイヤーに parallel: true を指定するとサブタスクごとに 1 ワーカーへ fan-out します。名前付きサブエージェントは #agent または task ツールでインラインに呼び出せ、/create-layer でモデルに新しいレイヤーの作成と配置を任せることもできます。',
             },
             {
                 title: 'マルチプロバイダー',
                 description:
-                    'Anthropic、OpenAI、ollama-cloud、oMLX（ローカルの Apple Silicon MLX）、Codex（ChatGPT OAuth）。/connect で models.dev カタログから任意のプロバイダーを検索・追加でき（非対応エントリは無効表示となり、キーが誤ルーティングされることはありません）、各レイヤーが独自のプロバイダーとモデルを選び、モデルごとの context・pricing オーバーライドも任意で設定できます。',
+                    'Anthropic、OpenAI、ollama-cloud、oMLX（ローカルの Apple Silicon MLX）、Codex（ChatGPT OAuth）。/connect で models.dev カタログから任意のプロバイダーを検索・追加でき（非対応エントリは無効表示となり、キーが誤ルーティングされることはありません）、add-custom-provider フォームでローカル LLM サーバーなど OpenAI/Anthropic 互換のエンドポイントも数秒で直接登録できます。各レイヤーが独自のプロバイダーとモデルを選び、モデルごとの context・pricing オーバーライドも任意で設定できます。',
             },
             {
                 title: '編集とコードインテリジェンス',
@@ -77,7 +77,7 @@ export const ja: Dictionary = {
             {
                 title: 'TUI',
                 description:
-                    'ratatui 製のターミナル UI：テーマごとに彩色されたパネル上のライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト · effort）、diff 承認オーバーレイ、Ctrl+R 逆検索を備えたコマンド履歴、ask-user-question 選択オーバーレイ、/settings、13 種の組み込みパレットを備えた /theme エディター、入力で絞り込む /models ピッカー、/connect、/effort、/editor（Ctrl+E）、/rename · /export、/copy · /code-review、/undo · /redo、そしてオプションのターミナルベル通知。positional プロンプトや stdin パイプで起動でき、あるいは -p、--agent、--file、--format json でヘッドレス実行。',
+                    'リサイズやフルスクリーンにリアルタイムで追従するフルハイトのビューポート上に構築された ratatui 製ターミナル UI — 完了したターンは native scrollback に残ります：テーマごとに彩色されたパネル上のライブ Markdown、ステータスフッター（アクティブレイヤー · モデル · トークン · ctx% ゲージ · コスト · effort）、diff 承認オーバーレイ、Ctrl+R 逆検索を備えたコマンド履歴、ask-user-question 選択オーバーレイ、/settings、13 種の組み込みパレットを備えた /theme エディター、入力で絞り込む /models ピッカー、/connect、/effort、/editor（Ctrl+E）、/rename · /export、/copy · /code-review、/undo · /redo、そしてオプションのターミナルベル通知。positional プロンプトや stdin パイプで起動でき、あるいは -p、--agent、--file、--format json でヘッドレス実行。',
             },
             {
                 title: 'セッションと制御',

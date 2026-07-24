@@ -56,12 +56,12 @@ export const ko: Dictionary = {
             {
                 title: '레이어 파이프라인',
                 description:
-                    '각 step은 자신만의 모델·도구·시스템 프롬프트를 가진 독립 sub-agent입니다. 기본은 순차 실행이며, 레이어에 parallel: true를 지정하면 서브태스크마다 워커 하나로 fan-out 합니다. #agent나 task 도구로 이름이 지정된 sub-agent를 인라인으로 디스패치할 수 있습니다.',
+                    '각 step은 자신만의 모델·도구·시스템 프롬프트를 가진 독립 sub-agent입니다. 기본은 순차 실행이며, 레이어에 parallel: true를 지정하면 서브태스크마다 워커 하나로 fan-out 합니다. #agent나 task 도구로 이름이 지정된 sub-agent를 인라인으로 디스패치하거나, /create-layer로 모델이 새 레이어를 작성·배치하게 할 수 있습니다.',
             },
             {
                 title: '멀티 프로바이더',
                 description:
-                    'Anthropic, OpenAI, ollama-cloud, oMLX(로컬 Apple Silicon MLX), Codex(ChatGPT OAuth). /connect로 models.dev 카탈로그에서 아무 provider나 검색·추가할 수 있고(지원하지 않는 항목은 비활성으로 표시되어 키가 잘못 라우팅되지 않습니다), 모든 레이어가 자신의 provider와 모델을 고르며 모델별 컨텍스트·가격 재정의도 선택적으로 적용할 수 있습니다.',
+                    'Anthropic, OpenAI, ollama-cloud, oMLX(로컬 Apple Silicon MLX), Codex(ChatGPT OAuth). /connect로 models.dev 카탈로그에서 아무 provider나 검색·추가할 수 있고(지원하지 않는 항목은 비활성으로 표시되어 키가 잘못 라우팅되지 않습니다), add-custom-provider 폼으로 로컬 LLM 서버 같은 OpenAI/Anthropic 호환 엔드포인트를 몇 초 만에 직접 등록할 수 있습니다. 모든 레이어가 자신의 provider와 모델을 고르며 모델별 컨텍스트·가격 재정의도 선택적으로 적용할 수 있습니다.',
             },
             {
                 title: '편집 & 코드 인텔리전스',
@@ -76,7 +76,7 @@ export const ko: Dictionary = {
             {
                 title: 'TUI',
                 description:
-                    'ratatui 터미널 UI: 테마별로 채색된 패널 위의 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용 · effort), diff 승인 오버레이, Ctrl+R 역검색을 갖춘 명령 히스토리, ask-user-question 선택 오버레이, /settings, 13개 기본 팔레트를 갖춘 /theme 편집기, 입력으로 거르는 /models 피커, /connect, /effort, /editor(Ctrl+E), /rename · /export, /copy · /code-review, /undo · /redo, 그리고 선택형 터미널 벨 알림. positional 프롬프트나 stdin 파이프로 시작하거나, -p, --agent, --file, --format json으로 헤드리스 실행.',
+                    '리사이즈·전체화면을 실시간으로 따라가는 전체 높이 뷰포트 위의 ratatui 터미널 UI — 완료된 턴은 native scrollback에 남습니다: 테마별로 채색된 패널 위의 라이브 마크다운, 상태 푸터(활성 레이어 · 모델 · 토큰 · ctx% 게이지 · 비용 · effort), diff 승인 오버레이, Ctrl+R 역검색을 갖춘 명령 히스토리, ask-user-question 선택 오버레이, /settings, 13개 기본 팔레트를 갖춘 /theme 편집기, 입력으로 거르는 /models 피커, /connect, /effort, /editor(Ctrl+E), /rename · /export, /copy · /code-review, /undo · /redo, 그리고 선택형 터미널 벨 알림. positional 프롬프트나 stdin 파이프로 시작하거나, -p, --agent, --file, --format json으로 헤드리스 실행.',
             },
             {
                 title: '세션 & 제어',
