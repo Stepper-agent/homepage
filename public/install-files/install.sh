@@ -20,10 +20,20 @@ main() {
     download "${BASE_URL}/${asset}" "${tmpdir}/${asset}"
     say "unpacking"
     tar -xzf "${tmpdir}/${asset}" -C "$tmpdir"
-    local bin
+    local bin staged
     bin="$(find "$tmpdir" -type f -name stepper | head -n1)"
     [ -n "$bin" ] || err "could not find the 'stepper' binary inside ${asset}"
-    mkdir -p "$INSTALL_DIR"; cp "$bin" "$INSTALL_DIR/stepper"; chmod 0755 "$INSTALL_DIR/stepper"
+    mkdir -p "$INSTALL_DIR"
+    # Replace atomically via same-filesystem rename, NEVER `cp` over an existing
+    # binary: cp truncates the same inode, and the macOS kernel keeps the old
+    # code signature cached on that vnode — every exec of the updated file then
+    # dies with SIGKILL ("killed") until the file is swapped out. Staging inside
+    # INSTALL_DIR keeps the final mv a true rename (a cross-device mv would fall
+    # back to a copy and could hit the same inode reuse).
+    staged="${INSTALL_DIR}/.stepper.new.$$"
+    cp "$bin" "$staged"
+    chmod 0755 "$staged"
+    mv -f "$staged" "$INSTALL_DIR/stepper"
     say "installed ${INSTALL_DIR}/stepper"
     ensure_on_path
     "$INSTALL_DIR/stepper" --version || true
